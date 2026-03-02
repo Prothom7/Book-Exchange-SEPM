@@ -1,0 +1,15 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #1f2937;
+  background: #f9f5ff;
+}
+
+.container {
+  width: min(1100px, 92%);
+  margin: 0 auto;
+}

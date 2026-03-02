@@ -1,0 +1,125 @@
+.hero-carousel {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.slide-overlay {
+  width: min(900px, 90%);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(2px);
+  border: 1px solid #f3e8ff;
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.slide-overlay h2 {
+  margin: 0 0 0.7rem;
+  font-size: 2.2rem;
+  color: #4c1d95;
+}
+
+.slide-overlay p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.carousel-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #c4b5fd;
+}
+
+.carousel-dots span.active {
+  background: #14b8a6;
+  border-color: #0f766e;
+}
+
+.landing-sections {
+  padding: 2.5rem 0 3rem;
+  background: #fefce8;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.info-card {
+  border-radius: 18px;
+  border: 1px solid #e9d5ff;
+  padding: 1.1rem;
+}
+
+.news-card {
+  background: #e0f2fe;
+}
+
+.bestseller-card {
+  background: #fde68a;
+}
+
+.books-card {
+  background: #dcfce7;
+}
+
+.author-card {
+  background: #fae8ff;
+}
+
+.info-card h3 {
+  margin: 0 0 0.6rem;
+  color: #581c87;
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.info-card li {
+  margin-bottom: 0.4rem;
+}
+
+@media (max-width: 860px) {
+  .slide-overlay h2 {
+    font-size: 1.8rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

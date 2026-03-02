@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Landing Page</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/landingpage.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="hero-carousel" aria-label="Featured books carousel">
+      <div class="carousel-track">
+        <article class="carousel-slide"
+                 th:if="${#lists.isEmpty(carouselSlides)}">
+          <div class="slide-overlay">
+            <h2 th:text="${page.heading}">Share, Swap, and Discover Books</h2>
+            <p th:text="${page.description}">A clean starting point for your book-sharing website.</p>
+          </div>
+        </article>
+
+        <article class="carousel-slide"
+                 th:each="slide : ${carouselSlides}"
+                 th:style="|background-image: linear-gradient(rgba(219,234,254,0.32), rgba(250,232,255,0.32)), url('${slide.imageUrl}');|">
+          <div class="slide-overlay">
+            <h2 th:text="${slide.title}">Carousel Title</h2>
+            <p th:text="${slide.subtitle}">Carousel subtitle</p>
+          </div>
+        </article>
+      </div>
+      <div class="carousel-dots" aria-hidden="true">
+        <span th:if="${#lists.isEmpty(carouselSlides)}" class="active"></span>
+        <span th:each="slide, stat : ${carouselSlides}"
+              th:classappend="${stat.index == 0} ? 'active' : ''"></span>
+      </div>
+    </section>
+
+    <section class="landing-sections">
+      <div class="container info-grid">
+        <article class="info-card news-card">
+          <h3>Latest News</h3>
+          <ul>
+            <li>Spring semester exchange drive starts this week.</li>
+            <li>Top readers event scheduled for next Friday.</li>
+            <li>New categories added for children and science books.</li>
+          </ul>
+        </article>
+
+        <article class="info-card books-card">
+          <h3>Latest Books</h3>
+          <ul>
+            <li>Clean Code</li>
+            <li>The Pragmatic Programmer</li>
+            <li>Atomic Habits</li>
+          </ul>
+        </article>
+
+        <article class="info-card author-card">
+          <h3>Latest Authors</h3>
+          <ul>
+            <li>James Clear</li>
+            <li>Paulo Coelho</li>
+            <li>Cal Newport</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/landingpage-carousel.js}" defer></script>
+</body>
+</html>

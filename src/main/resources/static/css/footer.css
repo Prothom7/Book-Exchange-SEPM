@@ -1,0 +1,34 @@
+.site-footer {
+  border-top: 1px solid #e9d5ff;
+  background: #fdf2f8;
+  margin-top: 0;
+  padding: 1.6rem 0 1rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.footer-grid h3 {
+  margin: 0 0 0.45rem;
+  color: #7e22ce;
+}
+
+.footer-grid p {
+  margin: 0 0 0.3rem;
+}
+
+.footer-bottom {
+  border-top: 1px solid #f5d0fe;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
