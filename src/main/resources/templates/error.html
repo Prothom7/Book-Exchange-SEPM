@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="page-wrap error-hero">
+    <h1>Something went wrong</h1>
+    <p>An unexpected error occurred. Please try again.</p>
+    <div class="nav-links">
+        <a th:href="@{/home}">Back to Home</a>
+        <a th:href="@{/login}">Login Again</a>
+    </div>
+</section>
+</body>
+</html>

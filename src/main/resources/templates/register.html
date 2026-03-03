@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .form-group:last-of-type {
+            margin-bottom: 8px;
+        }
+        
+        .submit-wrapper {
+            position: relative;
+            margin-top: 14px;
+        }
+        
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(79, 73, 68, 0.6);
+            transition: color 0.2s ease;
+            z-index: 10;
+            outline: none;
+        }
+        
+        .password-toggle:hover {
+            color: rgba(79, 73, 68, 0.9);
+        }
+        
+        .password-toggle:focus {
+            outline: 2px solid rgba(143, 127, 115, 0.4);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        
+        .password-toggle svg {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="auth-card">
+    <div class="brand">
+        <svg class="book-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 14C12 11.8 13.8 10 16 10H44C48.4 10 52 13.6 52 18V50C52 52.2 50.2 54 48 54H20C15.6 54 12 50.4 12 46V14Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M28 54V10M20 18H44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="32" cy="38" r="6" stroke="currentColor" stroke-width="2" fill="none" opacity="0.8"/>
+        </svg>
+        <h1>Create Account</h1>
+        <p>Join and start exchanging your favorite books</p>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/register}" th:object="${registerRequest}" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input id="username" th:field="*{username}" type="text" required placeholder="choose_a_username">
+            <div class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input id="email" th:field="*{email}" type="email" required placeholder="your.email@example.com">
+            <div class="field-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input id="password" th:field="*{password}" type="password" required placeholder="min. 6 characters">
+                <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+                    <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+            <div class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+        </div>
+
+        <div class="submit-wrapper">
+            <button class="btn-primary" type="submit">Create Account</button>
+        </div>
+    </form>
+
+    <p class="helper-link">
+        Already have an account? <a th:href="@{/login}">Sign in here</a>
+    </p>
+</section>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+</script>
+</body>
+</html>

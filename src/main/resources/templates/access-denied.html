@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .error-hero {
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+        
+        .error-hero h1 {
+            font-size: 2.4rem;
+            margin: 0 0 12px;
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #e74c3c 0%, #ff6b6b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .error-hero p {
+            color: var(--text-muted);
+            margin: 0 0 24px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="page-wrap error-hero">
+    <span class="error-icon">🔒</span>
+    <h1>Access Denied</h1>
+    <p>You don't have permission to access this page.<br>Please check your credentials or contact an administrator.</p>
+    <div class="nav-links">
+        <a th:href="@{/home}">← Back to Dashboard</a>
+        <a th:href="@{/login}">Sign In Again</a>
