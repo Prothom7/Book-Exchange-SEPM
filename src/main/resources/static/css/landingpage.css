@@ -76,11 +76,14 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: stretch;
+  --cards-per-view: 4;
+  --rail-gap: clamp(0.6rem, 1.6vw, 1rem);
+  --more-size: clamp(36px, 6vw, 44px);
 
   width: 100%;
   min-width: 100%;
 
-  gap: clamp(0.6rem, 1.6vw, 1rem);
+  gap: var(--rail-gap);
   padding: clamp(0.6rem, 1.5vw, 0.9rem) 0.25rem;
 
   overflow-x: auto;
@@ -110,8 +113,10 @@
   align-items: flex-start;
   gap: clamp(0.6rem, 1.4vw, 0.9rem);
 
-  /* 🔑 Responsive width */
-  flex: 0 0 clamp(240px, 42vw, 420px);
+  flex: 0 0 max(
+    240px,
+    calc((100% - var(--more-size) - (var(--cards-per-view) * var(--rail-gap))) / var(--cards-per-view))
+  );
 
   padding-right: clamp(0.6rem, 1.6vw, 1rem);
   border-right: 1px solid #dbe0ea;
@@ -148,8 +153,8 @@
 ================================ */
 
 .feed-more {
-  flex: 0 0 clamp(36px, 6vw, 44px);
-  height: clamp(36px, 6vw, 44px);
+  flex: 0 0 var(--more-size);
+  height: var(--more-size);
 
   align-self: center;
 
@@ -190,10 +195,23 @@
 
 @media (max-width: 480px) {
   .feed-rail {
+    --cards-per-view: 1;
     scroll-snap-type: x proximity;
   }
 
   .feed-card {
-    flex-basis: 85vw;
+    flex-basis: calc(100% - var(--more-size) - var(--rail-gap));
+  }
+}
+
+@media (min-width: 481px) and (max-width: 840px) {
+  .feed-rail {
+    --cards-per-view: 2;
+  }
+}
+
+@media (min-width: 841px) and (max-width: 1180px) {
+  .feed-rail {
+    --cards-per-view: 3;
   }
 }
