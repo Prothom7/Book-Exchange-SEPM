@@ -1,19 +1,22 @@
 .site-footer {
-  border-top: 1px solid #e9d5ff;
-  background: #fdf2f8;
+  border-top: 0;
+  background: var(--pastel-footer);
   margin-top: 0;
-  padding: 1.6rem 0 1rem;
+  padding: 2rem 0 1rem;
 }
 
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  background: #f8fffb;
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
 }
 
 .footer-grid h3 {
   margin: 0 0 0.45rem;
-  color: #7e22ce;
+  color: #4f5b8c;
 }
 
 .footer-grid p {
@@ -21,7 +24,7 @@
 }
 
 .footer-bottom {
-  border-top: 1px solid #f5d0fe;
+  border-top: 0;
   margin-top: 1rem;
   padding-top: 0.8rem;
   text-align: center;

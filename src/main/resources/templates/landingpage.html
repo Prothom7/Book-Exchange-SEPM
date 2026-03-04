@@ -39,34 +39,64 @@
       </div>
     </section>
 
-    <section class="landing-sections">
-      <div class="container info-grid">
-        <article class="info-card news-card">
+    <section class="content-feed">
+      <div class="container feed-stack">
+        <section class="feed-block news-feed" aria-label="Latest news">
           <h3>Latest News</h3>
-          <ul>
-            <li>Spring semester exchange drive starts this week.</li>
-            <li>Top readers event scheduled for next Friday.</li>
-            <li>New categories added for children and science books.</li>
-          </ul>
-        </article>
+          <div id="news-rail" class="feed-rail" th:if="${not #lists.isEmpty(newsCards)}">
+            <article class="feed-card" th:each="card : ${newsCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">News Headline</h4>
+                <div class="card-meta">
+                  <span class="meta-label">News</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">2 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="news-rail" aria-label="View more news">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(newsCards)}">No news cards available.</p>
+        </section>
 
-        <article class="info-card books-card">
+        <section class="feed-block books-feed" aria-label="Latest books">
           <h3>Latest Books</h3>
-          <ul>
-            <li>Clean Code</li>
-            <li>The Pragmatic Programmer</li>
-            <li>Atomic Habits</li>
-          </ul>
-        </article>
+          <div id="books-rail" class="feed-rail" th:if="${not #lists.isEmpty(bookCards)}">
+            <article class="feed-card" th:each="card : ${bookCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">Book Name</h4>
+                <div class="card-meta">
+                  <span class="meta-label">Book</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">3 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="books-rail" aria-label="View more books">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(bookCards)}">No book cards available.</p>
+        </section>
 
-        <article class="info-card author-card">
-          <h3>Latest Authors</h3>
-          <ul>
-            <li>James Clear</li>
-            <li>Paulo Coelho</li>
-            <li>Cal Newport</li>
-          </ul>
-        </article>
+        <section class="feed-block authors-feed" aria-label="Featured authors">
+          <h3>Featured Authors</h3>
+          <div id="authors-rail" class="feed-rail" th:if="${not #lists.isEmpty(authorCards)}">
+            <article class="feed-card" th:each="card : ${authorCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">Author Name</h4>
+                <div class="card-meta">
+                  <span class="meta-label">Author</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">2 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="authors-rail" aria-label="View more authors">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(authorCards)}">No author cards available.</p>
+        </section>
       </div>
     </section>
   </main>

@@ -1,6 +1,8 @@
 package com.example.book_exchange_sepm.controller;
 
+import com.example.book_exchange_sepm.model.FeedCardType;
 import com.example.book_exchange_sepm.service.CarouselSlideService;
+import com.example.book_exchange_sepm.service.FeedCardService;
 import com.example.book_exchange_sepm.service.PageService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,16 +13,23 @@ public class PageController {
 
     private final PageService pageService;
     private final CarouselSlideService carouselSlideService;
+    private final FeedCardService feedCardService;
 
-    public PageController(PageService pageService, CarouselSlideService carouselSlideService) {
+    public PageController(PageService pageService,
+                          CarouselSlideService carouselSlideService,
+                          FeedCardService feedCardService) {
         this.pageService = pageService;
         this.carouselSlideService = carouselSlideService;
+        this.feedCardService = feedCardService;
     }
 
     @GetMapping({"/", "/landingpage"})
     public String landingPage(Model model) {
         populateModel(model, "landingpage");
         model.addAttribute("carouselSlides", carouselSlideService.getActiveSlides());
+        model.addAttribute("newsCards", feedCardService.getActiveCardsByType(FeedCardType.NEWS));
+        model.addAttribute("bookCards", feedCardService.getActiveCardsByType(FeedCardType.BOOK));
+        model.addAttribute("authorCards", feedCardService.getActiveCardsByType(FeedCardType.AUTHOR));
         return "landingpage";
     }
 
