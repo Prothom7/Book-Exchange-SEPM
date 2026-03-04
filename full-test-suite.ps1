@@ -73,7 +73,7 @@ $randomId = Get-Random -Max 9999
 $testUser = @{
     username = "testuser_$randomId"
     email = "test${randomId}@example.com"
-    password = "password123"
+    password = "Str0ngP@ssw0rd_$randomId"
 }
 
 Write-Host "[TEST 2.1] API User Registration..." -ForegroundColor White
