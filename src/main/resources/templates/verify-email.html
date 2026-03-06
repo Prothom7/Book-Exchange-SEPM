@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="auth-card">
+    <div class="brand">
+        <svg class="book-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 14C12 11.8 13.8 10 16 10H44C48.4 10 52 13.6 52 18V50C52 52.2 50.2 54 48 54H20C15.6 54 12 50.4 12 46V14Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M28 54V10M20 18H44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 28H40M24 36H38" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+        </svg>
+        <h1>Email Verification</h1>
+        <p>Book Exchange account confirmation</p>
+    </div>
+
+    <div th:if="${verificationSuccess}" class="alert alert-success" th:text="${message}"></div>
+    <div th:unless="${verificationSuccess}" class="alert alert-error" th:text="${message}"></div>
+
+    <p class="helper-link" th:if="${verificationSuccess}">
+        Continue to <a th:href="@{/login}">Login</a>
+    </p>
+    <p class="helper-link" th:unless="${verificationSuccess}">
+        Go back to <a th:href="@{/register}">Register</a>
+    </p>
+</section>
+</body>
+</html>

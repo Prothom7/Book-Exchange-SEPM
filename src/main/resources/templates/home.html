@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="page-wrap">
+    <h2>Welcome back, <span th:text="${username}">reader</span></h2>
+    <p>Select your workspace based on permissions.</p>
+
+    <div class="nav-links">
+        <a th:href="@{/user/home}">User Home</a>
+        <a th:href="@{/moderator/home}" sec:authorize="hasAnyRole('MODERATOR','ADMIN')">Moderator Home</a>
+        <a th:href="@{/admin/home}" sec:authorize="hasRole('ADMIN')">Admin Home</a>
+    </div>
+
+    <form class="logout-form" th:action="@{/logout}" method="post">
+        <button class="inline-btn" type="submit">Logout</button>
+    </form>
+</section>
+</body>
+</html>
