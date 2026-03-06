@@ -19,6 +19,112 @@
         <p th:text="${page.description}">Find books shared by other readers and pick what you like.</p>
       </div>
     </section>
+
+    <section class="browse-content">
+      <div class="container">
+        <form class="search-panel" th:action="@{/browse}" th:object="${search}" method="get">
+          <input type="hidden" th:field="*{searched}" value="true">
+
+          <div class="search-main">
+            <label for="keyword">Search</label>
+            <input id="keyword" type="text" th:field="*{keyword}" placeholder="Title, author, genre, language, ISBN">
+            <div class="button-row inline-row">
+              <button type="submit">Search Books</button>
+              <a th:href="@{/browse}" class="clear-btn">Clear</a>
+            </div>
+          </div>
+
+          <details class="filters-dropdown">
+            <summary>Filters</summary>
+            <div class="filter-grid">
+              <div>
+                <label for="title">Title</label>
+                <input id="title" type="text" th:field="*{title}" placeholder="Book title">
+              </div>
+              <div>
+                <label for="author">Author</label>
+                <input id="author" type="text" th:field="*{author}" placeholder="Author name">
+              </div>
+              <div>
+                <label for="genre">Genre</label>
+                <select id="genre" th:field="*{genre}">
+                  <option value="">All genres</option>
+                  <option th:each="genre : ${genres}" th:value="${genre}" th:text="${genre}"></option>
+                </select>
+              </div>
+              <div>
+                <label for="language">Language</label>
+                <select id="language" th:field="*{language}">
+                  <option value="">All languages</option>
+                  <option th:each="language : ${languages}" th:value="${language}" th:text="${language}"></option>
+                </select>
+              </div>
+              <div>
+                <label for="isbn">ISBN</label>
+                <input id="isbn" type="text" th:field="*{isbn}" placeholder="978...">
+              </div>
+              <div>
+                <label for="bookCondition">Condition</label>
+                <select id="bookCondition" th:field="*{bookCondition}">
+                  <option value="">Any condition</option>
+                  <option value="Like New">Like New</option>
+                  <option value="Good">Good</option>
+                  <option value="Fair">Fair</option>
+                </select>
+              </div>
+              <div>
+                <label for="minYear">Min Year</label>
+                <input id="minYear" type="number" th:field="*{minYear}" placeholder="1990" min="0" step="1">
+              </div>
+              <div>
+                <label for="maxYear">Max Year</label>
+                <input id="maxYear" type="number" th:field="*{maxYear}" placeholder="2026" min="0" step="1">
+              </div>
+              <div class="full-width">
+                <label class="checkbox-label" for="availableOnly">
+                  <input id="availableOnly" type="checkbox" th:field="*{availableOnly}">
+                  Show only available books
+                </label>
+              </div>
+            </div>
+          </details>
+        </form>
+
+        <div class="results-meta" th:if="${searched}">
+          <p><strong th:text="${books.size()}">0</strong> books found</p>
+        </div>
+
+        <section class="books-grid" th:if="${searched and !books.isEmpty()}">
+          <article class="book-card" th:each="book : ${books}">
+            <div class="book-card-top">
+              <span class="chip" th:text="${book.genre}">Genre</span>
+              <span class="chip secondary" th:text="${book.language}">Language</span>
+            </div>
+            <h3 th:text="${book.title}">Book Title</h3>
+            <p class="byline">By <span th:text="${book.author}">Author</span></p>
+            <p class="description" th:text="${book.description}">Description</p>
+            <div class="book-meta">
+              <span>Year: <strong th:text="${book.publicationYear}">2020</strong></span>
+              <span>Condition: <strong th:text="${book.bookCondition}">Good</strong></span>
+              <span>ISBN: <strong th:text="${book.isbn}">9780000000000</strong></span>
+            </div>
+            <p class="availability" th:text="${book.available} ? 'Available for exchange' : 'Currently unavailable'">
+              Available for exchange
+            </p>
+          </article>
+        </section>
+
+        <div class="no-results" th:if="${!searched}">
+          <h3>Browse some books</h3>
+          <p>Use search or open Filters to find books by title, author, genre, language, and more.</p>
+        </div>
+
+        <div class="no-results" th:if="${searched and books.isEmpty()}">
+          <h3>No books match your filters</h3>
+          <p>Try fewer filters or clear search criteria to see more books.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
