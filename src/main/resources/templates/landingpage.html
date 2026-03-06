@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Landing Page</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/landingpage.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="hero-carousel" aria-label="Featured books carousel">
+      <div class="carousel-track">
+        <article class="carousel-slide"
+                 th:if="${#lists.isEmpty(carouselSlides)}">
+          <div class="slide-overlay">
+            <h2 th:text="${page.heading}">Share, Swap, and Discover Books</h2>
+            <p th:text="${page.description}">A clean starting point for your book-sharing website.</p>
+          </div>
+        </article>
+
+        <article class="carousel-slide"
+                 th:each="slide : ${carouselSlides}"
+                 th:style="|background-image: linear-gradient(rgba(219,234,254,0.32), rgba(250,232,255,0.32)), url('${slide.imageUrl}');|">
+          <div class="slide-overlay">
+            <h2 th:text="${slide.title}">Carousel Title</h2>
+            <p th:text="${slide.subtitle}">Carousel subtitle</p>
+          </div>
+        </article>
+      </div>
+      <div class="carousel-dots" aria-hidden="true">
+        <span th:if="${#lists.isEmpty(carouselSlides)}" class="active"></span>
+        <span th:each="slide, stat : ${carouselSlides}"
+              th:classappend="${stat.index == 0} ? 'active' : ''"></span>
+      </div>
+    </section>
+
+    <section class="content-feed">
+      <div class="container feed-stack">
+        <section class="feed-block news-feed" aria-label="Latest news">
+          <h3>Latest News</h3>
+          <div id="news-rail" class="feed-rail" th:if="${not #lists.isEmpty(newsCards)}">
+            <article class="feed-card" th:each="card : ${newsCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">News Headline</h4>
+                <div class="card-meta">
+                  <span class="meta-label">News</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">2 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="news-rail" aria-label="View more news">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(newsCards)}">No news cards available.</p>
+        </section>
+
+        <section class="feed-block books-feed" aria-label="Latest books">
+          <h3>Latest Books</h3>
+          <div id="books-rail" class="feed-rail" th:if="${not #lists.isEmpty(bookCards)}">
+            <article class="feed-card" th:each="card : ${bookCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">Book Name</h4>
+                <div class="card-meta">
+                  <span class="meta-label">Book</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">3 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="books-rail" aria-label="View more books">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(bookCards)}">No book cards available.</p>
+        </section>
+
+        <section class="feed-block authors-feed" aria-label="Featured authors">
+          <h3>Featured Authors</h3>
+          <div id="authors-rail" class="feed-rail" th:if="${not #lists.isEmpty(authorCards)}">
+            <article class="feed-card" th:each="card : ${authorCards}">
+              <img class="feed-image" th:src="${card.imageUrl}" th:alt="${card.headline}" loading="lazy">
+              <div class="feed-content">
+                <h4 th:text="${card.headline}">Author Name</h4>
+                <div class="card-meta">
+                  <span class="meta-label">Author</span>
+                  <span class="meta-separator">•</span>
+                  <span class="reading-time" th:text="${card.readingTime}">2 min read</span>
+                </div>
+              </div>
+            </article>
+            <button type="button" class="feed-more" data-target="authors-rail" aria-label="View more authors">→</button>
+          </div>
+          <p th:if="${#lists.isEmpty(authorCards)}">No author cards available.</p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/landingpage-carousel.js}" defer></script>
+</body>
+</html>

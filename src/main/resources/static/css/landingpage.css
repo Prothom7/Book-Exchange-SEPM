@@ -1,0 +1,217 @@
+/* ===============================
+   HERO CAROUSEL
+================================ */
+
+.hero-carousel {
+  width: 100%;
+  height: calc(100dvh - var(--site-header-height, 0px));
+  min-height: 460px;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  background-size: cover;
+  background-position: center;
+}
+
+.slide-overlay {
+  width: min(920px, 92%);
+  background: rgba(255, 255, 255, 0.74);
+  backdrop-filter: blur(3px);
+  border-radius: 24px;
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  text-align: center;
+}
+
+.slide-overlay h2 {
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  color: #354068;
+}
+
+.slide-overlay p {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+}
+
+/* ===============================
+   CONTENT FEED
+================================ */
+
+.content-feed {
+  padding: clamp(2rem, 4vw, 3.6rem) 0;
+  background: var(--pastel-page);
+}
+
+.feed-stack {
+  display: grid;
+  gap: clamp(1.6rem, 3vw, 2.4rem);
+}
+
+.feed-block h3 {
+  margin-bottom: 0.8rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  color: #1f2436;
+}
+
+/* ===============================
+   FEED RAIL (RESPONSIVE)
+================================ */
+
+.feed-rail {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  --cards-per-view: 4;
+  --rail-gap: clamp(0.6rem, 1.6vw, 1rem);
+  --more-size: clamp(36px, 6vw, 44px);
+
+  width: 100%;
+  min-width: 100%;
+
+  gap: var(--rail-gap);
+  padding: clamp(0.6rem, 1.5vw, 0.9rem) 0.25rem;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+
+  border-top: 1px solid #dbe0ea;
+  border-bottom: 1px solid #dbe0ea;
+
+  scrollbar-width: thin;
+}
+
+/* Prevent shrinking inside grid */
+.feed-rail > * {
+  flex-shrink: 0;
+}
+
+/* ===============================
+   FEED CARD (SCALES WITH SCREEN)
+================================ */
+
+.feed-card {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.6rem, 1.4vw, 0.9rem);
+
+  flex: 0 0 max(
+    240px,
+    calc((100% - var(--more-size) - (var(--cards-per-view) * var(--rail-gap))) / var(--cards-per-view))
+  );
+
+  padding-right: clamp(0.6rem, 1.6vw, 1rem);
+  border-right: 1px solid #dbe0ea;
+
+  scroll-snap-align: start;
+}
+
+.feed-image {
+  width: clamp(80px, 16vw, 110px);
+  min-width: clamp(80px, 16vw, 110px);
+  height: clamp(60px, 12vw, 80px);
+  object-fit: cover;
+}
+
+.feed-content h4 {
+  margin-bottom: 0.35rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+  line-height: 1.25;
+  font-weight: 600;
+  color: #0f172b;
+}
+
+.card-meta {
+  display: flex;
+  gap: 0.3rem;
+  font-size: clamp(0.65rem, 1.1vw, 0.75rem);
+  letter-spacing: 0.08em;
+  color: #5f6679;
+  text-transform: uppercase;
+}
+
+/* ===============================
+   FEED MORE BUTTON
+================================ */
+
+.feed-more {
+  flex: 0 0 var(--more-size);
+  height: var(--more-size);
+
+  align-self: center;
+
+  border: 1px solid #d9dfe9;
+  border-radius: 999px;
+  background: #ffffff;
+
+  font-size: clamp(0.9rem, 2vw, 1.05rem);
+  cursor: pointer;
+
+  scroll-snap-align: end;
+}
+
+.feed-more:hover {
+  background: #f3f6fb;
+}
+
+/* ===============================
+   SCROLLBAR
+================================ */
+
+.feed-rail::-webkit-scrollbar {
+  height: 8px;
+}
+
+.feed-rail::-webkit-scrollbar-thumb {
+  background: #c5cbda;
+  border-radius: 999px;
+}
+
+.feed-rail::-webkit-scrollbar-track {
+  background: #edf1f7;
+}
+
+/* ===============================
+   SMALL DEVICES (PHONES)
+================================ */
+
+@media (max-width: 480px) {
+  .feed-rail {
+    --cards-per-view: 1;
+    scroll-snap-type: x proximity;
+  }
+
+  .feed-card {
+    flex-basis: calc(100% - var(--more-size) - var(--rail-gap));
+  }
+}
+
+@media (min-width: 481px) and (max-width: 840px) {
+  .feed-rail {
+    --cards-per-view: 2;
+  }
+}
+
+@media (min-width: 841px) and (max-width: 1180px) {
+  .feed-rail {
+    --cards-per-view: 3;
+  }
+}
