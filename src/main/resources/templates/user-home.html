@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Workspace | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .user-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0f1419;
+            font-size: 1.2rem;
+            box-shadow: 0 8px 16px rgba(212, 165, 116, 0.25);
+        }
+        
+        .welcome-text h3 {
+            margin: 0;
+            color: var(--text-main);
+            font-size: 1.3rem;
+        }
+        
+        .welcome-text p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .nav-links {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="page-wrap">
+    <div class="dashboard-header">
+        <div class="user-badge" th:text="${username.charAt(0).toUpperCase()}"></div>
+        <div class="welcome-text">
+            <h3>Welcome, <span th:text="${username}">reader</span></h3>
+            <p>Manage your books and exchange requests</p>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a th:href="@{/api/user/profile}">📋 My Profile</a>
+        <a th:href="@{/api/books}">📚 Browse Books</a>
+        <a th:href="@{/api/exchange-requests/my-requests}">🔄 Exchange Requests</a>
+        <a th:href="@{/home}">🏠 Role Hub</a>
+    </div>
+
+    <form class="logout-form" th:action="@{/logout}" method="post">
+        <button class="inline-btn" type="submit">Sign Out</button>
