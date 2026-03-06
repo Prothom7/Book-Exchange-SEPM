@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle}">Book Exchange | Admin Section</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+  <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2 th:text="${pageHeading}">Admin Section</h2>
+        <p th:text="${pageDescription}">Section details</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-grid">
+        <article class="admin-card">
+          <h3>Module Coming Soon</h3>
+          <p>This tab is ready for implementation. Add CRUD operations and workflows specific to this admin module.</p>
+          <a class="admin-link" th:href="@{/admin}">Back to Dashboard</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+</body>
+</html>

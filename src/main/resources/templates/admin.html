@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle}">Book Exchange | Admin</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+  <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2 th:text="${pageHeading}">Admin Dashboard</h2>
+        <p th:text="${pageDescription}">Manage website settings and content sections.</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-grid">
+        <article class="admin-card">
+          <h3>UI Management</h3>
+          <p>Use the UI section to add carousel slides and feed cards for news, books, and authors.</p>
+          <a class="admin-link" th:href="@{/admin/ui}">Open UI Manager</a>
+        </article>
+
+        <article class="admin-card">
+          <h3>Navigation</h3>
+          <p>Admin navbar now includes dedicated links for Admin and UI sections.</p>
+          <a class="admin-link" th:href="@{/landingpage}">Go to Landing Page</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+</body>
+</html>

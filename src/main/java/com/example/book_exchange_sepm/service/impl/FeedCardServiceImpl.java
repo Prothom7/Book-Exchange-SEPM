@@ -21,4 +21,9 @@ public class FeedCardServiceImpl implements FeedCardService {
     public List<FeedCard> getActiveCardsByType(FeedCardType type) {
         return feedCardRepository.findByTypeAndActiveTrueOrderByDisplayOrderAsc(type);
     }
+
+    @Override
+    public FeedCard createCard(FeedCard card) {
+        return feedCardRepository.save(card);
+    }
 }

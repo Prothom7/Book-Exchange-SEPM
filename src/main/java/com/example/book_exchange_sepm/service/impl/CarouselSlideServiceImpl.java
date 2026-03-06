@@ -20,4 +20,9 @@ public class CarouselSlideServiceImpl implements CarouselSlideService {
     public List<CarouselSlide> getActiveSlides() {
         return carouselSlideRepository.findByActiveTrueOrderByDisplayOrderAsc();
     }
+
+    @Override
+    public CarouselSlide createSlide(CarouselSlide slide) {
+        return carouselSlideRepository.save(slide);
+    }
 }
