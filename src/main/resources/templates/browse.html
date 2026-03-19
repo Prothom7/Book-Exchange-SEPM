@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Browse</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/browse.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="page-banner">
+      <div class="container">
+        <h2 th:text="${page.heading}">Browse Available Books</h2>
+        <p th:text="${page.description}">Find books shared by other readers and pick what you like.</p>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+</body>
+</html>
