@@ -96,6 +96,10 @@
 
         <section class="books-grid" th:if="${searched and !books.isEmpty()}">
           <article class="book-card" th:each="book : ${books}">
+            <img class="book-cover"
+                 th:src="${book.imageUrl}"
+                 th:alt="|Cover of ${book.title}|"
+                 onerror="this.onerror=null;this.src='https://placehold.co/260x380/eef2ff/334155?text=Book+Cover';">
             <div class="book-card-top">
               <span class="chip" th:text="${book.genre}">Genre</span>
               <span class="chip secondary" th:text="${book.language}">Language</span>
@@ -126,6 +130,8 @@
             <p class="card-status" aria-live="polite"></p>
           </article>
         </section>
+
+        <nav id="browsePagination" class="browse-pagination" th:if="${searched and !books.isEmpty()}" aria-label="Browse books pages"></nav>
 
         <div class="no-results" th:if="${!searched}">
           <h3>Browse some books</h3>

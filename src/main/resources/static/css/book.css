@@ -1,6 +1,6 @@
 .page-banner {
   padding: 3rem 0;
-  background: linear-gradient(130deg, #dff3ea 0%, #e8f1ff 100%);
+  background: linear-gradient(135deg, var(--pastel-header) 0%, #eaf2ff 100%);
 }
 
 .page-banner h2 {
@@ -15,19 +15,19 @@
 
 .book-workspace {
   padding: 2rem 0 3rem;
-  background: #f8fbff;
+  background: var(--pastel-page);
 }
 
-.book-layout {
+.book-shell {
   display: grid;
-  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   gap: 1rem;
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #dce4f1;
-  border-radius: 18px;
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
   padding: 1rem;
   box-shadow: 0 8px 24px rgba(63, 79, 124, 0.08);
 }
@@ -45,10 +45,11 @@
 .book-form input,
 .book-form textarea,
 .book-form select {
-  border: 1px solid #cfd8ea;
+  border: 1px solid var(--pastel-navbar-hover);
   border-radius: 10px;
   padding: 0.6rem 0.7rem;
   font: inherit;
+  background: var(--pastel-page);
 }
 
 .book-form button,
@@ -63,8 +64,8 @@
 .book-form button {
   margin-top: 0.5rem;
   padding: 0.62rem 0.95rem;
-  background: #b8e7d1;
-  color: #134a35;
+  background: var(--pastel-navbar);
+  color: #2e3560;
 }
 
 .panel-head {
@@ -77,30 +78,47 @@
 
 .ghost-btn {
   padding: 0.45rem 0.82rem;
-  background: #e9eef9;
+  background: var(--pastel-navbar);
   color: #2b3a64;
 }
 
-.book-list {
+.shelf-title-row {
+  align-items: center;
+}
+
+.bookshelf-grid {
   display: grid;
   gap: 0.7rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.book-item {
-  border: 1px solid #dde5f4;
+.book-shelf-card {
+  border: 1px solid #d9e2f7;
   border-radius: 12px;
-  padding: 0.8rem;
-  background: #fcfdff;
+  padding: 0.7rem;
+  background: #fdfdff;
+  display: grid;
+  gap: 0.45rem;
 }
 
-.book-item h4 {
-  margin: 0 0 0.35rem;
-  font-size: 1.02rem;
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #d5dcf5;
+  background: #ffffff;
+}
+
+.book-shelf-card h4 {
+  margin: 0;
+  font-size: 0.98rem;
   color: #27335a;
 }
 
-.book-item p {
+.book-shelf-card p {
   margin: 0.2rem 0;
+  font-size: 0.88rem;
 }
 
 .item-row {
@@ -113,8 +131,8 @@
 
 .availability-btn {
   padding: 0.45rem 0.75rem;
-  background: #dff0ff;
-  color: #114a6b;
+  background: #dce7ff;
+  color: #334d80;
 }
 
 .availability-state {
@@ -137,7 +155,17 @@
 }
 
 @media (max-width: 940px) {
-  .book-layout {
+  .book-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .bookshelf-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .bookshelf-grid {
     grid-template-columns: 1fr;
   }
 }

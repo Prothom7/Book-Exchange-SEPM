@@ -231,13 +231,14 @@ public class BookService {
     }
 
     private BookResponse convertToResponse(Book book) {
+        String resolvedImageUrl = resolveBookImageUrl(book);
         return new BookResponse(
             book.getId(),
             book.getTitle(),
             book.getAuthor(),
             book.getGenre(),
             book.getDescription(),
-            book.getImageUrl(),
+            resolvedImageUrl,
             book.getIsbn(),
             book.getOwner() != null ? book.getOwner().getId() : null,
             book.getOwner() != null ? book.getOwner().getUsername() : null,
@@ -246,6 +247,22 @@ public class BookService {
             book.getCreatedAt(),
             book.getUpdatedAt()
         );
+    }
+
+    private String resolveBookImageUrl(Book book) {
+        if (book.getImageUrl() != null && !book.getImageUrl().isBlank()) {
+            return book.getImageUrl();
+        }
+
+        if (book.getIsbn() != null && !book.getIsbn().isBlank()) {
+            return "https://covers.openlibrary.org/b/isbn/" + book.getIsbn().trim() + "-M.jpg?default=false";
+        }
+
+        String titleText = (book.getTitle() == null || book.getTitle().isBlank())
+            ? "Book"
+            : book.getTitle().trim().replace(" ", "+");
+
+        return "https://placehold.co/260x380/eef2ff/334155?text=" + titleText;
     }
 
     private String normalize(String value) {

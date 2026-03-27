@@ -1,5 +1,6 @@
 const browseTokenKeys = ["jwtToken", "token", "authToken"];
 const browseToken = browseTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
+const BROWSE_PAGE_SIZE = 12;
 
 function browseHeaders(extra = {}) {
   if (!browseToken) {
@@ -121,3 +122,47 @@ document.addEventListener("click", async (event) => {
     }
   }
 });
+
+function initBrowsePagination() {
+  const cards = Array.from(document.querySelectorAll(".books-grid .book-card"));
+  const paginationRoot = document.getElementById("browsePagination");
+
+  if (!paginationRoot || cards.length === 0) {
+    return;
+  }
+
+  const totalPages = Math.ceil(cards.length / BROWSE_PAGE_SIZE);
+  if (totalPages <= 1) {
+    paginationRoot.innerHTML = "";
+    return;
+  }
+
+  function renderPage(pageNumber) {
+    const start = (pageNumber - 1) * BROWSE_PAGE_SIZE;
+    const end = start + BROWSE_PAGE_SIZE;
+
+    cards.forEach((card, index) => {
+      card.style.display = index >= start && index < end ? "" : "none";
+    });
+
+    const buttons = Array.from(paginationRoot.querySelectorAll(".browse-page-btn"));
+    buttons.forEach((button) => {
+      button.classList.toggle("active", Number(button.dataset.page) === pageNumber);
+    });
+  }
+
+  paginationRoot.innerHTML = "";
+  for (let page = 1; page <= totalPages; page += 1) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "browse-page-btn";
+    button.dataset.page = String(page);
+    button.textContent = String(page);
+    button.addEventListener("click", () => renderPage(page));
+    paginationRoot.appendChild(button);
+  }
+
+  renderPage(1);
+}
+
+initBrowsePagination();
