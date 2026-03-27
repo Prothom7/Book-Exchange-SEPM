@@ -1,20 +1,5 @@
 package com.example.book_exchange_sepm.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
-
-@Configuration
-public class SecurityConfig {
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(authorize -> authorize
-                        .anyRequest().permitAll()
-                )
-                .csrf(csrf -> csrf.disable());
 import com.example.book_exchange_sepm.security.JwtAuthenticationFilter;
 import com.example.book_exchange_sepm.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,30 +53,22 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-            .authorizeHttpRequests(authz ->
-                authz
-                    .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error").permitAll()
-                    .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                    .requestMatchers("/h2-console/**").permitAll()
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error").permitAll()
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/h2-console/**").permitAll()
 
-                    // Public endpoints - authentication endpoints
-                    .requestMatchers("/api/auth/register").permitAll()
-                    .requestMatchers("/api/auth/login").permitAll()
-                    .requestMatchers("/api/auth/verify-email").permitAll()
+                // Public authentication APIs
+                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/verify-email").permitAll()
 
-                    // Admin endpoints - ADMIN role only
-                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // Role-specific APIs
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/moderator/**").hasAnyRole("MODERATOR", "ADMIN")
+                .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**")
+                .hasAnyRole("USER", "MODERATOR", "ADMIN")
 
-                    // Moderator endpoints - MODERATOR and ADMIN
-                    .requestMatchers("/api/moderator/**").hasAnyRole("MODERATOR", "ADMIN")
-
-                    // User endpoints - USER, MODERATOR, and ADMIN
-                    .requestMatchers("/api/user/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
-                    .requestMatchers("/api/books/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
-                    .requestMatchers("/api/exchange-requests/**").hasAnyRole("USER", "MODERATOR", "ADMIN")
-
-                    // All other endpoints require authentication
-                    .anyRequest().authenticated()
+                // App pages require authentication (including /, /landingpage, /browse)
+                .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
@@ -104,9 +81,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
-            .exceptionHandling(ex -> ex
-                .accessDeniedPage("/access-denied")
-            )
+            .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"))
             .httpBasic(withDefaults())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -14,7 +14,7 @@
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
         }
-        
+
         .user-badge {
             width: 56px;
             height: 56px;
@@ -28,21 +28,28 @@
             font-size: 1.2rem;
             box-shadow: 0 8px 16px rgba(212, 165, 116, 0.25);
         }
-        
+
         .welcome-text h3 {
             margin: 0;
             color: var(--text-main);
             font-size: 1.3rem;
         }
-        
+
         .welcome-text p {
             margin: 4px 0 0;
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        
+
         .nav-links {
-            margin-bottom: 20px;
+            display: grid;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -53,7 +60,7 @@
 
 <section class="page-wrap">
     <div class="dashboard-header">
-        <div class="user-badge" th:text="${username.charAt(0).toUpperCase()}"></div>
+        <div class="user-badge" th:text="${#strings.substring(username, 0, 1).toUpperCase()}">U</div>
         <div class="welcome-text">
             <h3>Welcome, <span th:text="${username}">reader</span></h3>
             <p>Manage your books and exchange requests</p>
@@ -61,11 +68,15 @@
     </div>
 
     <div class="nav-links">
-        <a th:href="@{/api/user/profile}">📋 My Profile</a>
-        <a th:href="@{/api/books}">📚 Browse Books</a>
-        <a th:href="@{/api/exchange-requests/my-requests}">🔄 Exchange Requests</a>
-        <a th:href="@{/home}">🏠 Role Hub</a>
+        <a th:href="@{/profile}">My Profile</a>
+        <a th:href="@{/browse}">Browse Books</a>
+        <a th:href="@{/landingpage}">Landing Page</a>
+        <a th:href="@{/home}">Role Hub</a>
     </div>
 
     <form class="logout-form" th:action="@{/logout}" method="post">
         <button class="inline-btn" type="submit">Sign Out</button>
+    </form>
+</section>
+</body>
+</html>

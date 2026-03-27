@@ -76,7 +76,10 @@ class BookServiceTest {
         book.setTitle("Domain-Driven Design");
         book.setAuthor("Eric Evans");
         book.setIsbn("9780321125217");
-        book.setCondition("Excellent");
+        book.setBookCondition("Excellent");
+        book.setGenre("Software Engineering");
+        book.setLanguage("English");
+        book.setPublicationYear(2003);
         book.setAvailable(true);
 
         when(bookRepository.findById(55L)).thenReturn(Optional.of(book));
@@ -100,7 +103,10 @@ class BookServiceTest {
         book.setTitle("Old title");
         book.setAuthor("Old author");
         book.setIsbn("1111111111");
-        book.setCondition("Fair");
+        book.setBookCondition("Fair");
+        book.setGenre("General");
+        book.setLanguage("English");
+        book.setPublicationYear(2000);
 
         BookRequest request = new BookRequest("New title", "New author", "desc", "2222222222", "Good");
 
