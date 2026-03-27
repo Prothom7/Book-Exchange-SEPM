@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <header class="admin-header" th:fragment="adminHeader(adminNavItems, activePath)">
+    <div class="admin-header-top container">
+      <h1 class="admin-logo">Book Exchange Admin</h1>
+      <a class="admin-back-link" th:href="@{/landingpage}">Back to Site</a>
+    </div>
+    <nav class="admin-navbar container" aria-label="Admin navigation">
+      <ul>
+        <li th:each="item : ${adminNavItems}">
+          <a th:href="@{${item.path}}"
+             th:text="${item.label}"
+             th:classappend="${item.path == activePath} ? 'active' : ''">Tab</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+</body>
+</html>

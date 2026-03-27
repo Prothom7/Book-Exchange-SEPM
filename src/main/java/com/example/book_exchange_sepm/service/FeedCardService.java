@@ -8,4 +8,6 @@ import java.util.List;
 public interface FeedCardService {
 
     List<FeedCard> getActiveCardsByType(FeedCardType type);
+
+    FeedCard createCard(FeedCard card);
 }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${pageTitle}">Book Exchange | UI Manager</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+  <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2 th:text="${pageHeading}">UI Content Manager</h2>
+        <p th:text="${pageDescription}">Add carousel slides and feed cards for news, books, and authors.</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container">
+        <p class="status-text" th:if="${status == 'carousel-added'}">Carousel slide added successfully.</p>
+        <p class="status-text" th:if="${status == 'feed-added'}">Feed card added successfully.</p>
+
+        <div class="form-grid">
+          <article class="admin-card">
+            <h3>Add Carousel</h3>
+            <form th:action="@{/admin/ui/carousel}" th:object="${carouselForm}" method="post" class="admin-form">
+              <label for="carouselTitle">Title</label>
+              <input id="carouselTitle" th:field="*{title}" type="text" required>
+
+              <label for="carouselSubtitle">Subtitle</label>
+              <input id="carouselSubtitle" th:field="*{subtitle}" type="text" required>
+
+              <label for="carouselImageUrl">Image URL</label>
+              <input id="carouselImageUrl" th:field="*{imageUrl}" type="url" required>
+
+              <label for="carouselDisplayOrder">Display Order</label>
+              <input id="carouselDisplayOrder" th:field="*{displayOrder}" type="number" min="0" required>
+
+              <label class="checkbox-row" for="carouselActive">
+                <input id="carouselActive" th:field="*{active}" type="checkbox">
+                Active
+              </label>
+
+              <button type="submit" class="admin-btn">Add Carousel</button>
+            </form>
+          </article>
+
+          <article class="admin-card">
+            <h3>Add News, Book, Author Card</h3>
+            <form th:action="@{/admin/ui/feed}" th:object="${feedCardForm}" method="post" class="admin-form">
+              <label for="feedType">Type</label>
+              <select id="feedType" th:field="*{type}" required>
+                <option th:each="feedType : ${feedTypes}"
+                        th:value="${feedType}"
+                        th:text="${feedType}">NEWS</option>
+              </select>
+
+              <label for="feedHeadline">Headline</label>
+              <input id="feedHeadline" th:field="*{headline}" type="text" required>
+
+              <label for="feedShortText">Short Text</label>
+              <textarea id="feedShortText" th:field="*{shortText}" rows="3" required></textarea>
+
+              <label for="feedImageUrl">Image URL</label>
+              <input id="feedImageUrl" th:field="*{imageUrl}" type="url" required>
+
+              <label for="feedReadingTime">Reading Time</label>
+              <input id="feedReadingTime" th:field="*{readingTime}" type="text" placeholder="2 min read" required>
+
+              <label for="feedDisplayOrder">Display Order</label>
+              <input id="feedDisplayOrder" th:field="*{displayOrder}" type="number" min="0" required>
+
+              <label class="checkbox-row" for="feedActive">
+                <input id="feedActive" th:field="*{active}" type="checkbox">
+                Active
+              </label>
+
+              <button type="submit" class="admin-btn">Add Feed Card</button>
+            </form>
+          </article>
+        </div>
+
+        <div class="preview-grid">
+          <article class="admin-card">
+            <h3>Active Carousel</h3>
+            <ul class="preview-list" th:if="${not #lists.isEmpty(carouselSlides)}">
+              <li th:each="slide : ${carouselSlides}" th:text="|${slide.displayOrder} - ${slide.title}|"></li>
+            </ul>
+            <p th:if="${#lists.isEmpty(carouselSlides)}">No active slides yet.</p>
+          </article>
+
+          <article class="admin-card">
+            <h3>Active News</h3>
+            <ul class="preview-list" th:if="${not #lists.isEmpty(newsCards)}">
+              <li th:each="card : ${newsCards}" th:text="|${card.displayOrder} - ${card.headline}|"></li>
+            </ul>
+            <p th:if="${#lists.isEmpty(newsCards)}">No active news cards yet.</p>
+          </article>
+
+          <article class="admin-card">
+            <h3>Active Books</h3>
+            <ul class="preview-list" th:if="${not #lists.isEmpty(bookCards)}">
+              <li th:each="card : ${bookCards}" th:text="|${card.displayOrder} - ${card.headline}|"></li>
+            </ul>
+            <p th:if="${#lists.isEmpty(bookCards)}">No active book cards yet.</p>
+          </article>
+
+          <article class="admin-card">
+            <h3>Active Authors</h3>
+            <ul class="preview-list" th:if="${not #lists.isEmpty(authorCards)}">
+              <li th:each="card : ${authorCards}" th:text="|${card.displayOrder} - ${card.headline}|"></li>
+            </ul>
+            <p th:if="${#lists.isEmpty(authorCards)}">No active author cards yet.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+</body>
+</html>

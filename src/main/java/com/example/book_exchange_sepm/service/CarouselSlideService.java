@@ -7,4 +7,6 @@ import java.util.List;
 public interface CarouselSlideService {
 
     List<CarouselSlide> getActiveSlides();
+
+    CarouselSlide createSlide(CarouselSlide slide);
 }
