@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <style>
+        .form-group:last-of-type {
+            margin-bottom: 8px;
+        }
+        
+        .submit-wrapper {
+            position: relative;
+            margin-top: 14px;
+        }
+        
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-wrapper input {
+            padding-right: 45px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(79, 73, 68, 0.6);
+            transition: color 0.2s ease;
+            z-index: 10;
+            outline: none;
+        }
+        
+        .password-toggle:hover {
+            color: rgba(79, 73, 68, 0.9);
+        }
+        
+        .password-toggle:focus {
+            outline: 2px solid rgba(143, 127, 115, 0.4);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        
+        .password-toggle svg {
+            width: 20px;
+            height: 20px;
+            pointer-events: none;
+        }
+
+        .secondary-action {
+            margin-top: 12px;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            border: 1px solid rgba(143, 127, 115, 0.35);
+            border-radius: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.45);
+            color: #4f4944;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.62);
+        }
+    </style>
+</head>
+<body class="auth-body">
+<div class="bg-blur"></div>
+<div class="bg-circle circle-one"></div>
+<div class="bg-circle circle-two"></div>
+
+<section class="auth-card">
+    <div class="brand">
+        <svg class="book-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 14C12 11.8 13.8 10 16 10H44C48.4 10 52 13.6 52 18V50C52 52.2 50.2 54 48 54H20C15.6 54 12 50.4 12 46V14Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M28 54V10M20 18H44" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M24 28H40M24 36H38" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+        </svg>
+        <h1>Book Exchange</h1>
+        <p>Welcome back to your reading community</p>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username or Email</label>
+            <input id="username" name="username" type="text" required autocomplete="username" placeholder="your.username or email">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+                <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••">
+                <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+                    <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="submit-wrapper">
+            <button class="btn-primary" type="submit">Sign In</button>
+        </div>
+    </form>
+
+    <form th:action="@{/resend-verification}" method="post" class="secondary-action">
+        <input name="usernameOrEmail" type="text" required placeholder="Username or email for verification resend">
+        <button class="btn-secondary" type="submit">Resend Verification Email</button>
+    </form>
+
+    <p class="helper-link">
+        Don't have an account? <a th:href="@{/register}">Sign up here</a>
+    </p>
+</section>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eye-icon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+    }
+</script>
+</body>
+</html>
