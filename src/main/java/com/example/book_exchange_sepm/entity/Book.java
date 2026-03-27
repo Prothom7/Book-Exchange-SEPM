@@ -23,18 +23,27 @@ public class Book {
     @Column(nullable = false)
     private String author;
 
-    @Column(length = 500)
-    private String description;
+    @Column(nullable = false)
+    private String genre;
 
     @Column(nullable = false)
+    private String language;
+
+    @Column(nullable = false, unique = true)
     private String isbn;
+
+    @Column(nullable = false)
+    private Integer publicationYear;
+
+    @Column(name = "condition", nullable = false)
+    private String bookCondition;
+
+    @Column(nullable = false, length = 1000)
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
-
-    @Column(nullable = false)
-    private String condition;
 
     @Column(nullable = false)
     private Boolean available = true;

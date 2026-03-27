@@ -1,17 +1,6 @@
 package com.example.book_exchange_sepm.service;
 
 import com.example.book_exchange_sepm.controller.form.BookSearchForm;
-import com.example.book_exchange_sepm.model.Book;
-
-import java.util.List;
-
-public interface BookService {
-
-    List<Book> searchBooks(BookSearchForm searchForm);
-
-    List<String> getGenres();
-
-    List<String> getLanguages();
 import com.example.book_exchange_sepm.dto.BookRequest;
 import com.example.book_exchange_sepm.dto.BookResponse;
 import com.example.book_exchange_sepm.entity.Book;
@@ -19,35 +8,94 @@ import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.exception.ResourceNotFoundException;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
 import com.example.book_exchange_sepm.repository.BookRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class BookService {
 
-    @Autowired
-    private BookRepository bookRepository;
+    private final BookRepository bookRepository;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
+    public BookService(BookRepository bookRepository, UserService userService) {
+        this.bookRepository = bookRepository;
+        this.userService = userService;
+    }
 
-    /**
-     * Create a new book (accessible by USER and above)
-     */
+    @Transactional(readOnly = true)
+    public List<Book> searchBooks(BookSearchForm searchForm) {
+        String keyword = normalize(searchForm.getKeyword());
+        String title = normalize(searchForm.getTitle());
+        String author = normalize(searchForm.getAuthor());
+        String genre = normalize(searchForm.getGenre());
+        String language = normalize(searchForm.getLanguage());
+        String isbn = normalize(searchForm.getIsbn());
+        String bookCondition = normalize(searchForm.getBookCondition());
+        Integer minYear = searchForm.getMinYear();
+        Integer maxYear = searchForm.getMaxYear();
+        boolean availableOnly = searchForm.isAvailableOnly();
+
+        Stream<Book> stream = bookRepository.findAllByOrderByTitleAsc().stream();
+
+        if (keyword != null) {
+            stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), keyword)
+                || containsIgnoreCase(book.getAuthor(), keyword)
+                || containsIgnoreCase(book.getGenre(), keyword)
+                || containsIgnoreCase(book.getLanguage(), keyword)
+                || containsIgnoreCase(book.getIsbn(), keyword));
+        }
+        if (title != null) {
+            stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), title));
+        }
+        if (author != null) {
+            stream = stream.filter(book -> containsIgnoreCase(book.getAuthor(), author));
+        }
+        if (genre != null) {
+            stream = stream.filter(book -> equalsIgnoreCase(book.getGenre(), genre));
+        }
+        if (language != null) {
+            stream = stream.filter(book -> equalsIgnoreCase(book.getLanguage(), language));
+        }
+        if (isbn != null) {
+            stream = stream.filter(book -> containsIgnoreCase(book.getIsbn(), isbn));
+        }
+        if (bookCondition != null) {
+            stream = stream.filter(book -> equalsIgnoreCase(book.getBookCondition(), bookCondition));
+        }
+        if (minYear != null) {
+            stream = stream.filter(book -> book.getPublicationYear() != null && book.getPublicationYear() >= minYear);
+        }
+        if (maxYear != null) {
+            stream = stream.filter(book -> book.getPublicationYear() != null && book.getPublicationYear() <= maxYear);
+        }
+        if (availableOnly) {
+            stream = stream.filter(book -> Boolean.TRUE.equals(book.getAvailable()));
+        }
+
+        return stream.toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getGenres() {
+        return bookRepository.findDistinctGenres();
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getLanguages() {
+        return bookRepository.findDistinctLanguages();
+    }
+
     @Transactional
     public BookResponse createBook(BookRequest request) {
         User currentUser = userService.getCurrentUserEntity();
 
         Book book = new Book();
-        book.setTitle(request.getTitle());
-        book.setAuthor(request.getAuthor());
-        book.setDescription(request.getDescription());
-        book.setIsbn(request.getIsbn());
-        book.setCondition(request.getCondition());
+        applyBookRequest(book, request);
         book.setOwner(currentUser);
         book.setAvailable(true);
 
@@ -55,28 +103,18 @@ public class BookService {
         return convertToResponse(savedBook);
     }
 
-    /**
-     * Get all books (accessible by authenticated users)
-     */
     @Transactional(readOnly = true)
     public List<BookResponse> getAllBooks() {
-        return bookRepository.findAll().stream()
+        return bookRepository.findAllByOrderByTitleAsc().stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get book by ID (accessible by authenticated users)
-     */
     @Transactional(readOnly = true)
     public BookResponse getBookById(Long bookId) {
-        Book book = findBookById(bookId);
-        return convertToResponse(book);
+        return convertToResponse(findBookById(bookId));
     }
 
-    /**
-     * Get currently available books
-     */
     @Transactional(readOnly = true)
     public List<BookResponse> getAvailableBooks() {
         return bookRepository.findByAvailableTrue().stream()
@@ -84,9 +122,6 @@ public class BookService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get books owned by specific user
-     */
     @Transactional(readOnly = true)
     public List<BookResponse> getUserBooks(Long userId) {
         User owner = userService.findById(userId);
@@ -95,9 +130,6 @@ public class BookService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Get current user's books
-     */
     @Transactional(readOnly = true)
     public List<BookResponse> getMyBooks() {
         User currentUser = userService.getCurrentUserEntity();
@@ -106,86 +138,62 @@ public class BookService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Update book - OWNERSHIP ENFORCED
-     * Only owner or ADMIN can update
-     * Moderator cannot override ownership
-     */
     @Transactional
     public BookResponse updateBook(Long bookId, BookRequest request) {
         Book book = findBookById(bookId);
-
-        // Enforce ownership rule: only owner or admin can update
         userService.validateOwnershipOrAdmin(book.getOwner().getId());
-
-        // Update fields
-        book.setTitle(request.getTitle());
-        book.setAuthor(request.getAuthor());
-        book.setDescription(request.getDescription());
-        book.setIsbn(request.getIsbn());
-        book.setCondition(request.getCondition());
-
-        Book updatedBook = bookRepository.save(book);
-        return convertToResponse(updatedBook);
+        applyBookRequest(book, request);
+        return convertToResponse(bookRepository.save(book));
     }
 
-    /**
-     * Delete book - OWNERSHIP ENFORCED
-     * Only owner or ADMIN can delete
-     * Moderator cannot delete unless they are the owner
-     */
     @Transactional
     public void deleteBook(Long bookId) {
         Book book = findBookById(bookId);
-
-        // Enforce ownership rule: only owner or admin can delete
         userService.validateOwnershipOrAdmin(book.getOwner().getId());
-
         bookRepository.delete(book);
     }
 
-    /**
-     * Delete book by MODERATOR (as per role requirements)
-     * Moderators can delete any book for platform safety
-     * But they cannot manage other users' resources beyond deletion
-     */
     @Transactional
     public void deleteBookAsModerator(Long bookId) {
         if (!userService.isModerator()) {
             throw new UnauthorizedActionException("Only moderators can perform this action");
         }
 
-        Book book = findBookById(bookId);
-        bookRepository.delete(book);
+        bookRepository.delete(findBookById(bookId));
     }
 
-    /**
-     * Mark book as available/unavailable (owner only)
-     */
     @Transactional
     public BookResponse markBookAvailability(Long bookId, Boolean available) {
         Book book = findBookById(bookId);
-
-        // Only owner or admin can change availability
         userService.validateOwnershipOrAdmin(book.getOwner().getId());
-
         book.setAvailable(available);
-        Book updatedBook = bookRepository.save(book);
-        return convertToResponse(updatedBook);
+        return convertToResponse(bookRepository.save(book));
     }
 
-    /**
-     * Find book by ID or throw exception
-     */
     @Transactional(readOnly = true)
     protected Book findBookById(Long bookId) {
         return bookRepository.findById(bookId)
             .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
     }
 
-    /**
-     * Convert Book entity to BookResponse DTO
-     */
+    private void applyBookRequest(Book book, BookRequest request) {
+        book.setTitle(request.getTitle());
+        book.setAuthor(request.getAuthor());
+        book.setDescription(request.getDescription());
+        book.setIsbn(request.getIsbn());
+        book.setBookCondition(request.getCondition());
+
+        if (book.getGenre() == null) {
+            book.setGenre("General");
+        }
+        if (book.getLanguage() == null) {
+            book.setLanguage("English");
+        }
+        if (book.getPublicationYear() == null) {
+            book.setPublicationYear(0);
+        }
+    }
+
     private BookResponse convertToResponse(Book book) {
         return new BookResponse(
             book.getId(),
@@ -193,12 +201,33 @@ public class BookService {
             book.getAuthor(),
             book.getDescription(),
             book.getIsbn(),
-            book.getOwner().getId(),
-            book.getOwner().getUsername(),
-            book.getCondition(),
+            book.getOwner() != null ? book.getOwner().getId() : null,
+            book.getOwner() != null ? book.getOwner().getUsername() : null,
+            book.getBookCondition(),
             book.getAvailable(),
             book.getCreatedAt(),
             book.getUpdatedAt()
         );
+    }
+
+    private String normalize(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
+    private boolean containsIgnoreCase(String source, String query) {
+        if (source == null || query == null) {
+            return false;
+        }
+        return source.toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT));
+    }
+
+    private boolean equalsIgnoreCase(String left, String right) {
+        if (left == null || right == null) {
+            return false;
+        }
+        return left.equalsIgnoreCase(right);
     }
 }

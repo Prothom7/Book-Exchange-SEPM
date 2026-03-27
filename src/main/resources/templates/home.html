@@ -16,7 +16,6 @@
     <p>Select your workspace based on permissions.</p>
 
     <div class="nav-links">
-        <a th:href="@{/user/home}">User Home</a>
         <a th:href="@{/moderator/home}" sec:authorize="hasAnyRole('MODERATOR','ADMIN')">Moderator Home</a>
         <a th:href="@{/admin/home}" sec:authorize="hasRole('ADMIN')">Admin Home</a>
     </div>
