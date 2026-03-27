@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+    <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2>Book Management</h2>
+        <p>Manage system book inventory</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-section">
+        <div class="admin-page-header">
+            <div>
+                <h1><i class="bi bi-book-fill"></i> Book Management</h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;">
+                    Manage system book inventory
+                </p>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <div class="label">Total Books</div>
+                <div class="value" th:text="${totalBooks ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Available</div>
+                <div class="value" th:text="${availableBooks ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Allocated</div>
+                <div class="value" th:text="${allocatedBooks ?: 0}">0</div>
+            </div>
+        </div>
+        
+        <!-- View Controls -->
+        <div style="margin-bottom: 20px;">
+            <button class="table-view-btn" onclick="toggleGridView()">
+                <i class="bi bi-grid-3x3-gap"></i> Grid View
+            </button>
+            <button class="table-view-btn" onclick="toggleTableView()">
+                <i class="bi bi-table"></i> Table View
+            </button>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search books by title, author, ISBN, or genre..." onkeyup="filterBooks()">
+        </div>
+        
+        <!-- Grid View (Default) -->
+        <div class="books-grid" id="gridView">
+            <div th:each="book : ${books}" class="book-card book-row">
+                <div class="book-card-header">
+                    <i class="bi bi-book"></i>
+                </div>
+                <div class="book-card-body">
+                    <h3 th:text="${book.title}">Book Title</h3>
+                    <p class="author" th:text="${book.author}">Author Name</p>
+                    
+                    <p><strong>ISBN:</strong> <span th:text="${book.isbn}">N/A</span></p>
+                    <p><strong>Genre:</strong> <span th:text="${book.genre}">Unknown</span></p>
+                    <p><strong>Owner:</strong> <span th:text="${book.owner}">Unknown</span></p>
+                    
+                    <div class="badges">
+                        <span class="badge" 
+                              th:classappend="${book.status == 'AVAILABLE' ? 'badge-available' : 'badge-allocated'}"
+                              th:text="${book.status}">
+                            STATUS
+                        </span>
+                        <span class="badge badge-condition" th:text="${book.condition}">
+                            Condition
+                        </span>
+                    </div>
+                    
+                    <p><small th:text="${book.description}">No description</small></p>
+                    
+                    <div class="book-card-actions">
+                        <button class="action-btn btn-view" th:onclick="|viewBook(${book.id})|">
+                            <i class="bi bi-eye"></i> View
+                        </button>
+                        <button class="action-btn btn-edit" th:onclick="|editBook(${book.id})|">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Table View -->
+        <table class="books-table" id="tableView">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>ISBN</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Added</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="book : ${books}" class="book-row">
+                    <td th:text="${book.id}">ID</td>
+                    <td th:text="${book.title}">Title</td>
+                    <td th:text="${book.author}">Author</td>
+                    <td th:text="${book.genre}">Genre</td>
+                    <td th:text="${book.isbn}">ISBN</td>
+                    <td th:text="${book.condition}">Condition</td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${book.status == 'AVAILABLE' ? 'badge-available' : 'badge-allocated'}"
+                              th:text="${book.status}">
+                            STATUS
+                        </span>
+                    </td>
+                    <td th:text="${book.owner}">Owner</td>
+                    <td th:text="${book.createdAt}">Date</td>
+                    <td>
+                        <button class="action-btn btn-view" th:onclick="|viewBook(${book.id})|" style="margin-right: 5px;">
+                            View
+                        </button>
+                        <button class="action-btn btn-edit" th:onclick="|editBook(${book.id})|">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(books)}" style="text-align: center; padding: 40px;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p style="color: #999; margin-top: 10px;">No books found</p>
+        </div>
+      </div>
+    </section>
+    </main>
+    
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+    
+    <script>
+        // Toggle views
+        function toggleGridView() {
+            document.getElementById('gridView').style.display = 'grid';
+            document.getElementById('tableView').classList.remove('active');
+        }
+        
+        function toggleTableView() {
+            document.getElementById('gridView').style.display = 'none';
+            document.getElementById('tableView').classList.add('active');
+        }
+        
+        // Filter books
+        function filterBooks() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const rows = document.querySelectorAll('.book-row');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toUpperCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+        
+        // View book
+        function viewBook(bookId) {
+            window.location.href = `/books/${bookId}`;
+        }
+        
+        // Edit book
+        function editBook(bookId) {
+            window.location.href = `/admin/books/${bookId}/edit`;
+        }
+    </script>
+</body>
+</html>

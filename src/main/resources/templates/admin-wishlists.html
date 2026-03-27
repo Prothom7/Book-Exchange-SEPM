@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist Management - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+    <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2>Wishlist Management</h2>
+        <p>Monitor active wishlist subscriptions</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-section">
+        <div class="admin-page-header">
+            <div>
+                <h1><i class="bi bi-heart-fill"></i> Wishlist Management</h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;">
+                    Monitor active wishlist subscriptions
+                </p>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <div class="label">Total Subscriptions</div>
+                <div class="value" th:text="${totalWishlists ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Active</div>
+                <div class="value" th:text="${activeWishlists ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Inactive</div>
+                <div class="value" th:text="${inactiveWishlists ?: 0}">0</div>
+            </div>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by user name or book title..." onkeyup="filterWishlists()">
+        </div>
+        
+        <!-- Wishlists Table -->
+        <table class="wishlists-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Priority</th>
+                    <th>Subscribed</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="wishlist : ${wishlists}" class="wishlist-row">
+                    <td th:text="${wishlist.id}">ID</td>
+                    <td>
+                        <strong th:text="${wishlist.userName}">User Name</strong>
+                        <br>
+                        <small style="color: #999;">ID: <span th:text="${wishlist.userId}">ID</span></small>
+                    </td>
+                    <td th:text="${wishlist.bookTitle}">Book Title</td>
+                    <td th:text="${wishlist.author ?: 'N/A'}">Author</td>
+                    <td th:text="${wishlist.genre ?: 'N/A'}">Genre</td>
+                    <td>
+                        <span class="badge" 
+                                                            th:classappend="${wishlist.active ? 'badge-low' : 'badge-high'}"
+                                                            th:text="${wishlist.active ? 'ACTIVE' : 'INACTIVE'}">
+                                                        STATUS
+                        </span>
+                    </td>
+                                        <td th:text="${wishlist.createdAt}">Date</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn btn-view" th:onclick="|viewWishlist(${wishlist.id})|">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(wishlists)}" style="text-align: center; padding: 40px;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p style="color: #999; margin-top: 10px;">No wishlist subscriptions found</p>
+        </div>
+      </div>
+    </section>
+    </main>
+    
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+    
+    <script>
+        // Filter wishlists
+        function filterWishlists() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.querySelector('.wishlists-table');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j].textContent.toUpperCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+        
+        // View wishlist
+        function viewWishlist(wishlistId) {
+            window.location.href = `/admin/wishlists/${wishlistId}`;
+        }
+    </script>
+</body>
+</html>

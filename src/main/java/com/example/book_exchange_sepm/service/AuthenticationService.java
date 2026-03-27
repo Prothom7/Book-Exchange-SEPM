@@ -15,7 +15,6 @@ import com.example.book_exchange_sepm.validation.PasswordStrengthValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -124,7 +123,7 @@ public class AuthenticationService {
     public AuthResponse login(LoginRequest request) {
         try {
             // Authenticate user
-            Authentication authentication = authenticationManager.authenticate(
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                     request.getUsername(),
                     request.getPassword()

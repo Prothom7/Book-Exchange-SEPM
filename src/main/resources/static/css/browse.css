@@ -229,6 +229,41 @@
   color: #0f766e;
 }
 
+.book-actions {
+  margin-top: 0.7rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.request-btn,
+.wishlist-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.45rem 0.72rem;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.request-btn {
+  background: #d8ecff;
+  color: #0f4f78;
+}
+
+.wishlist-btn {
+  background: #efe7ff;
+  color: #4f2c8b;
+}
+
+.card-status {
+  margin: 0.55rem 0 0;
+  min-height: 1.1rem;
+  font-size: 0.83rem;
+  color: #5d6886;
+}
+
 .no-results {
   margin-top: 1rem;
   background: #ffffff;

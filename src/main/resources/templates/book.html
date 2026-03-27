@@ -19,8 +19,48 @@
         <p th:text="${page.description}">List a book you want to exchange with the community.</p>
       </div>
     </section>
+
+    <section class="book-workspace">
+      <div class="container book-layout">
+        <article class="panel add-panel">
+          <h3>Add to Your Library</h3>
+          <form id="bookCreateForm" class="book-form">
+            <label for="title">Title</label>
+            <input id="title" name="title" type="text" required>
+
+            <label for="author">Author</label>
+            <input id="author" name="author" type="text" required>
+
+            <label for="isbn">ISBN</label>
+            <input id="isbn" name="isbn" type="text" required>
+
+            <label for="condition">Condition</label>
+            <select id="condition" name="condition" required>
+              <option value="Like New">Like New</option>
+              <option value="Good">Good</option>
+              <option value="Fair">Fair</option>
+            </select>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+
+            <button type="submit">Add Book</button>
+            <p id="bookCreateStatus" class="status-line" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="panel library-panel">
+          <div class="panel-head">
+            <h3>My Library</h3>
+            <button id="refreshBooksBtn" type="button" class="ghost-btn">Refresh</button>
+          </div>
+          <div id="myBooksList" class="book-list"></div>
+        </article>
+      </div>
+    </section>
   </main>
 
   <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/book.js}" defer></script>
 </body>
 </html>

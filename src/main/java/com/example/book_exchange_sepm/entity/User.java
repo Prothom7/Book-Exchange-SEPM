@@ -45,6 +45,10 @@ public class User {
     @Column
     private LocalDateTime verificationTokenExpiry;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String profileImageDataUrl;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

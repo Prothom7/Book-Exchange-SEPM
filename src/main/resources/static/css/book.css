@@ -1,6 +1,6 @@
 .page-banner {
   padding: 3rem 0;
-  background: #dcfce7;
+  background: linear-gradient(130deg, #dff3ea 0%, #e8f1ff 100%);
 }
 
 .page-banner h2 {
@@ -11,4 +11,133 @@
 .page-banner p {
   margin: 0;
   font-size: 1rem;
+}
+
+.book-workspace {
+  padding: 2rem 0 3rem;
+  background: #f8fbff;
+}
+
+.book-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #dce4f1;
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(63, 79, 124, 0.08);
+}
+
+.panel h3 {
+  margin: 0 0 0.8rem;
+  color: #27365f;
+}
+
+.book-form {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.book-form input,
+.book-form textarea,
+.book-form select {
+  border: 1px solid #cfd8ea;
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+}
+
+.book-form button,
+.ghost-btn,
+.availability-btn {
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.book-form button {
+  margin-top: 0.5rem;
+  padding: 0.62rem 0.95rem;
+  background: #b8e7d1;
+  color: #134a35;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.ghost-btn {
+  padding: 0.45rem 0.82rem;
+  background: #e9eef9;
+  color: #2b3a64;
+}
+
+.book-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.book-item {
+  border: 1px solid #dde5f4;
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: #fcfdff;
+}
+
+.book-item h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  color: #27335a;
+}
+
+.book-item p {
+  margin: 0.2rem 0;
+}
+
+.item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-top: 0.55rem;
+}
+
+.availability-btn {
+  padding: 0.45rem 0.75rem;
+  background: #dff0ff;
+  color: #114a6b;
+}
+
+.availability-state {
+  font-size: 0.88rem;
+  color: #516081;
+}
+
+.status-line {
+  min-height: 1.25rem;
+  margin: 0.3rem 0 0;
+  font-size: 0.9rem;
+}
+
+.status-line.error {
+  color: #9a2b2b;
+}
+
+.status-line.success {
+  color: #1c6c4a;
+}
+
+@media (max-width: 940px) {
+  .book-layout {
+    grid-template-columns: 1fr;
+  }
 }

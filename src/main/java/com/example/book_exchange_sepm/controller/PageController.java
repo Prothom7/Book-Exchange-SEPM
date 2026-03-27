@@ -11,8 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.Collections;
-
 @Controller
 public class PageController {
 
@@ -31,7 +29,7 @@ public class PageController {
         this.bookService = bookService;
     }
 
-    @GetMapping({"/", "/landingpage"})
+    @GetMapping("/landingpage")
     public String landingPage(Model model) {
         populateModel(model, "landingpage");
         model.addAttribute("carouselSlides", carouselSlideService.getActiveSlides());
@@ -44,11 +42,10 @@ public class PageController {
     @GetMapping("/browse")
     public String browsePage(@ModelAttribute("search") BookSearchForm search, Model model) {
         populateModel(model, "browse");
-        boolean searched = search.isSearched();
-        model.addAttribute("books", searched ? bookService.searchBooks(search) : Collections.emptyList());
+        model.addAttribute("books", bookService.searchBooks(search));
         model.addAttribute("genres", bookService.getGenres());
         model.addAttribute("languages", bookService.getLanguages());
-        model.addAttribute("searched", searched);
+        model.addAttribute("searched", true);
         return "browse";
     }
 
@@ -62,6 +59,18 @@ public class PageController {
     public String profilePage(Model model) {
         populateModel(model, "profile");
         return "profile";
+    }
+
+    @GetMapping("/exchange")
+    public String exchangePage(Model model) {
+        populateModel(model, "exchange");
+        return "exchange";
+    }
+
+    @GetMapping("/wishlist")
+    public String wishlistPage(Model model) {
+        populateModel(model, "wishlist");
+        return "wishlist";
     }
 
     private void populateModel(Model model, String pageKey) {

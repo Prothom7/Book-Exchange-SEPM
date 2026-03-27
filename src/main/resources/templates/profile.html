@@ -13,14 +13,45 @@
   <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
 
   <main>
-    <section class="page-banner">
+    <section class="profile-hero">
       <div class="container">
-        <h2 th:text="${page.heading}">Your Reader Profile</h2>
-        <p th:text="${page.description}">Keep your account details and activity in one place.</p>
+        <div class="hero-copy">
+          <h2 th:text="${page.heading}">Your Reader Profile</h2>
+          <p th:text="${page.description}">Keep your account details and activity in one place.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="profile-main-section">
+      <div class="container">
+        <div class="profile-shell">
+          <article class="profile-card">
+            <div class="profile-avatar-block">
+              <img id="profileImage" class="profile-avatar" src="" alt="Profile image">
+              <label for="profileImageInput" class="image-picker">Choose New Image</label>
+              <input id="profileImageInput" type="file" accept="image/*">
+              <button id="saveImageBtn" class="action-btn" type="button" disabled>Save Image</button>
+            </div>
+
+            <div class="profile-details">
+              <h3 id="profileUsername">Loading profile...</h3>
+              <p id="profileEmail">Please wait while your profile is loaded.</p>
+              <p class="role-badges" id="profileRoles"></p>
+              <p class="profile-meta" id="profileMeta"></p>
+
+              <div class="profile-actions">
+                <button id="logoutBtn" class="logout-btn" type="button">Logout</button>
+              </div>
+            </div>
+          </article>
+
+          <p id="profileStatus" class="status-line" aria-live="polite"></p>
+        </div>
       </div>
     </section>
   </main>
 
   <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/profile.js}" defer></script>
 </body>
 </html>

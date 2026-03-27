@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Management - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+    <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2>Exchange Request Management</h2>
+        <p>Monitor and approve or reject book exchange requests</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-section">
+        <div class="admin-page-header">
+            <div>
+                <h1><i class="bi bi-arrow-left-right"></i> Exchange Request Management</h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;">
+                    Monitor and approve/reject book exchange requests
+                </p>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <div class="label">Total Requests</div>
+                <div class="value" th:text="${exchanges != null ? exchanges.size() : 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Pending</div>
+                <div class="value" th:text="${pendingCount ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Approved</div>
+                <div class="value" th:text="${approvedCount ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Completed</div>
+                <div class="value" th:text="${completedCount ?: 0}">0</div>
+            </div>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by requester, book title, or owner..." onkeyup="filterExchanges()">
+        </div>
+        
+        <!-- Filter Buttons -->
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterByStatus('All')">All</button>
+            <button class="filter-btn" onclick="filterByStatus('PENDING')">Pending</button>
+            <button class="filter-btn" onclick="filterByStatus('APPROVED')">Approved</button>
+            <button class="filter-btn" onclick="filterByStatus('COMPLETED')">Completed</button>
+            <button class="filter-btn" onclick="filterByStatus('REJECTED')">Rejected</button>
+        </div>
+        
+        <!-- Exchanges Table -->
+        <table class="exchanges-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>From</th>
+                    <th>Book Requested</th>
+                    <th>Book Offered</th>
+                    <th>To (Owner)</th>
+                    <th>Status</th>
+                    <th>Message</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="exchange : ${exchanges}" class="exchange-row" th:attr="data-status=${exchange.status}">
+                    <td th:text="${exchange.id}">ID</td>
+                    <td>
+                        <strong th:text="${exchange.senderName}">Sender</strong>
+                        <br>
+                        <small style="color: #999;">ID: <span th:text="${exchange.senderId}">ID</span></small>
+                    </td>
+                    <td th:text="${exchange.receiverBook}">Book</td>
+                    <td th:text="${exchange.senderBook}">Book</td>
+                    <td>
+                        <strong th:text="${exchange.receiverName}">Receiver</strong>
+                        <br>
+                        <small style="color: #999;">ID: <span th:text="${exchange.receiverId}">ID</span></small>
+                    </td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${exchange.status == 'PENDING' ? 'badge-pending' : exchange.status == 'APPROVED' ? 'badge-approved' : exchange.status == 'COMPLETED' ? 'badge-completed' : 'badge-rejected'}"
+                              th:text="${exchange.status}">
+                            STATUS
+                        </span>
+                    </td>
+                    <td>
+                        <small th:text="${#strings.abbreviate(exchange.notes, 50)}">Message</small>
+                    </td>
+                    <td th:text="${exchange.createdAt}">Date</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn btn-view" th:onclick="|viewExchange(${exchange.id})|">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(exchanges)}" style="text-align: center; padding: 40px;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p style="color: #999; margin-top: 10px;">No exchange requests found</p>
+        </div>
+      </div>
+    </section>
+    </main>
+    
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+    
+    <script>
+        // Search functionality
+        function filterExchanges() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.querySelector('.exchanges-table');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j].textContent.toUpperCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+        
+        // Filter by status
+        function filterByStatus(status) {
+            const rows = document.querySelectorAll('.exchange-row');
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            rows.forEach(row => {
+                if (status === 'All') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = row.getAttribute('data-status') === status ? '' : 'none';
+                }
+            });
+        }
+        
+        // View exchange details
+        function viewExchange(exchangeId) {
+            window.location.href = `/admin/exchanges/${exchangeId}`;
+        }
+        
+    </script>
+</body>
+</html>

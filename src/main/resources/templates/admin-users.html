@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+    <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2>User Management</h2>
+        <p>Manage all system users and their roles</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-section">
+        <div class="admin-page-header">
+            <div>
+                <h1><i class="bi bi-people-fill"></i> User Management</h1>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 0.95rem;">
+                    Manage all system users and their roles
+                </p>
+            </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="stats-mini">
+            <div class="stat-mini">
+                <div class="label">Total Users</div>
+                <div class="value" th:text="${totalUsers ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Verified Emails</div>
+                <div class="value" th:text="${verifiedUsers ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Active Users</div>
+                <div class="value" th:text="${totalUsers ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Moderators</div>
+                <div class="value" th:text="${moderatorCount ?: 0}">0</div>
+            </div>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search users by name, email, or ID..." onkeyup="filterUsers()">
+        </div>
+        
+        <!-- Users Table -->
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Email Status</th>
+                    <th>Status</th>
+                    <th>Books</th>
+                    <th>Exchanges</th>
+                    <th>Join Date</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}" class="user-row">
+                    <td th:text="${user.id}">ID</td>
+                    <td>
+                        <strong th:text="${user.name}">Name</strong>
+                        <br>
+                        <small style="color: #999;" th:text="${user.phone}"></small>
+                    </td>
+                    <td th:text="${user.email}">email@example.com</td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${user.role == 'ADMIN' ? 'badge-admin' : user.role == 'MODERATOR' ? 'badge-moderator' : 'badge-user'}"
+                              th:text="${user.role}">
+                            ROLE
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${user.isEmailVerified ? 'badge-verified' : 'badge-unverified'}">
+                            <i th:class="${user.isEmailVerified ? 'bi bi-check-circle' : 'bi bi-x-circle'}"></i>
+                            <span th:text="${user.isEmailVerified ? 'Verified' : 'Unverified'}">Status</span>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${user.status == 'ACTIVE' ? 'badge-active' : 'badge-inactive'}"
+                              th:text="${user.status}">
+                            STATUS
+                        </span>
+                    </td>
+                    <td th:text="${user.bookCount ?: 0}">0</td>
+                    <td th:text="${user.exchangeCount ?: 0}">0</td>
+                    <td th:text="${#temporals.format(user.joinDate, 'dd/MM/yyyy')}">Date</td>
+                    <td th:text="${user.lastLogin != null ? #temporals.format(user.lastLogin, 'dd/MM/yyyy HH:mm') : 'Never'}">
+                        Date
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn btn-view" th:onclick="|viewUser(${user.id})|">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                            <button class="action-btn btn-edit" th:onclick="|editUser(${user.id})|">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+                            <button class="action-btn btn-edit" th:if="${user.role == 'USER'}" th:onclick="|promoteUser(${user.id})|">
+                                <i class="bi bi-shield-check"></i> Promote
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Empty State -->
+        <div th:if="${#lists.isEmpty(users)}" style="text-align: center; padding: 40px;">
+            <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+            <p style="color: #999; margin-top: 10px;">No users found</p>
+        </div>
+      </div>
+    </section>
+    </main>
+    
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+    
+    <script>
+        // Search functionality
+        function filterUsers() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toUpperCase();
+            const table = document.querySelector('.users-table');
+            const rows = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length - 1; j++) {
+                    if (cells[j].textContent.toUpperCase().includes(filter)) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                rows[i].style.display = found ? '' : 'none';
+            }
+        }
+        
+        // View user details
+        function viewUser(userId) {
+            window.location.href = `/admin/users/${userId}`;
+        }
+        
+        // Edit user
+        function editUser(userId) {
+            window.location.href = `/admin/users/${userId}/edit`;
+        }
+
+        // Promote user to moderator if quota requirement is met
+        async function promoteUser(userId) {
+            const quota = prompt('Minimum listed books required (default 5):', '5');
+            const targetQuota = quota && quota.trim() !== '' ? quota.trim() : '5';
+
+            try {
+                const response = await fetch(`/admin/api/users/${userId}/promote-to-moderator?bookQuota=${encodeURIComponent(targetQuota)}`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert('User promoted to moderator successfully.');
+                    location.reload();
+                    return;
+                }
+
+                const errorText = await response.text();
+                alert(errorText || 'Failed to promote user.');
+            } catch (error) {
+                console.error('Promote failed:', error);
+                alert('An unexpected error occurred while promoting the user.');
+            }
+        }
+    </script>
+</body>
+</html>
