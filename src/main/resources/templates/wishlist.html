@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Wishlist</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/wishlist.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="page-banner">
+      <div class="container">
+        <h2 th:text="${page.heading}">Wishlist and Notifications</h2>
+        <p th:text="${page.description}">Subscribe to wanted books and monitor availability alerts.</p>
+      </div>
+    </section>
+
+    <section class="wishlist-workspace">
+      <div class="container wishlist-grid">
+        <article class="panel">
+          <h3>Create Wishlist Subscription</h3>
+          <form id="wishlistForm" class="wishlist-form">
+            <label for="wishTitle">Book Title</label>
+            <input id="wishTitle" name="bookTitle" type="text" required>
+
+            <label for="wishAuthor">Author (optional)</label>
+            <input id="wishAuthor" name="author" type="text">
+
+            <label for="wishGenre">Genre (optional)</label>
+            <input id="wishGenre" name="genre" type="text">
+
+            <button type="submit">Subscribe</button>
+            <p id="wishlistStatus" class="status-line" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="panel">
+          <h3>My Wishlist Subscriptions</h3>
+          <div id="wishlistItems" class="list-stack"></div>
+        </article>
+
+        <article class="panel wide-panel">
+          <h3>My Notifications</h3>
+          <div id="notificationItems" class="list-stack"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/wishlist.js}" defer></script>
+</body>
+</html>

@@ -111,6 +111,19 @@
             <p class="availability" th:text="${book.available} ? 'Available for exchange' : 'Currently unavailable'">
               Available for exchange
             </p>
+            <div class="book-actions" th:if="${book.available}">
+              <button type="button"
+                      class="request-btn"
+                      th:attr="data-book-id=${book.id},data-book-title=${book.title}">
+                Request Exchange
+              </button>
+              <button type="button"
+                      class="wishlist-btn"
+                      th:attr="data-title=${book.title},data-author=${book.author},data-genre=${book.genre}">
+                Watch This Book
+              </button>
+            </div>
+            <p class="card-status" aria-live="polite"></p>
           </article>
         </section>
 
@@ -128,5 +141,6 @@
   </main>
 
   <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/browse.js}" defer></script>
 </body>
 </html>

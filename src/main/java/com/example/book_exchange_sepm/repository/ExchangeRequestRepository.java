@@ -12,4 +12,5 @@ public interface ExchangeRequestRepository extends JpaRepository<ExchangeRequest
     List<ExchangeRequest> findByBookOwner_Id(Long ownerId);
     List<ExchangeRequest> findByRequester_Id(Long requesterId);
     List<ExchangeRequest> findByBook(Book book);
+    List<ExchangeRequest> findByStatusOrderByCreatedAtDesc(ExchangeRequest.Status status);
 }

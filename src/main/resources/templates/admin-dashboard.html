@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <th:block th:replace="~{fragments/admin-header :: adminHeader(${adminNavItems}, ${activePath})}"></th:block>
+
+    <main>
+    <section class="admin-banner">
+      <div class="container">
+        <h2>Admin Dashboard</h2>
+        <p>System Overview and Quick Statistics</p>
+      </div>
+    </section>
+
+    <section class="admin-content">
+      <div class="container admin-section">
+        <div class="admin-page-header">
+            <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+            <p>System Overview & Quick Statistics</p>
+        </div>
+        
+        <!-- Key Statistics Cards -->
+        <div class="dashboard-grid">
+            <div class="stat-card users">
+                <h3>Total Users</h3>
+                <div class="value" th:text="${stats.totalUsers ?: 0}">0</div>
+                <a href="/admin/users" class="quick-action-btn">View All Users</a>
+            </div>
+            
+            <div class="stat-card books">
+                <h3>Total Books</h3>
+                <div class="value" th:text="${stats.totalBooks ?: 0}">0</div>
+                <span style="font-size: 0.9rem;">
+                    <i class="bi bi-check-circle"></i> <span th:text="${stats.availableBooks ?: 0}">0</span> Available
+                </span>
+                <a href="/admin/books" class="quick-action-btn">View All Books</a>
+            </div>
+            
+            <div class="stat-card exchanges">
+                <h3>Exchange Requests</h3>
+                <div class="value" th:text="${stats.totalExchanges ?: 0}">0</div>
+                <span style="font-size: 0.9rem; opacity: 0.9;">
+                    <i class="bi bi-exclamation-circle"></i> <span th:text="${stats.pendingExchanges ?: 0}">0</span> Pending
+                </span>
+                <a href="/admin/exchanges" class="quick-action-btn">View All</a>
+            </div>
+            
+            <div class="stat-card wishlists">
+                <h3>Wishlist Subscriptions</h3>
+                <div class="value" th:text="${stats.totalWishlistSubscriptions ?: 0}">0</div>
+                <a href="/admin/wishlists" class="quick-action-btn">View All</a>
+            </div>
+        </div>
+        
+        <!-- Pending Requests Section -->
+        <div class="section-card">
+            <h3>
+                <i class="bi bi-clock-history"></i> 
+                Pending Exchange Approvals (<span th:text="${pendingRequests.size()}">0</span>)
+            </h3>
+            
+            <table class="pending-requests-table" th:if="${!pendingRequests.isEmpty()}">
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>Book Requested</th>
+                        <th>Offering</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${pendingRequests}">
+                        <td th:text="${request.senderName}">Sender</td>
+                        <td th:text="${request.receiverBook}">Book</td>
+                        <td th:text="${request.senderBook}">Offering</td>
+                        <td><span class="badge badge-pending">PENDING</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p th:if="${pendingRequests.isEmpty()}" style="color: #999; text-align: center; padding: 20px;">
+                <i class="bi bi-check-circle"></i> All exchange requests are up-to-date!
+            </p>
+            
+            <a href="/admin/pending" class="view-all-btn">View All Pending</a>
+        </div>
+        
+        <!-- Management Sections -->
+        <h2 style="margin-top: 30px; margin-bottom: 20px;">Management</h2>
+        <div class="sections-grid">
+            <div class="section-card">
+                <h3><i class="bi bi-people-fill"></i> User Management</h3>
+                <p>Manage user accounts, roles, and permissions. Monitor user activity and engagement.</p>
+                <a href="/admin/users" class="view-all-btn">Manage Users</a>
+            </div>
+            
+            <div class="section-card">
+                <h3><i class="bi bi-book-fill"></i> Book Inventory</h3>
+                <p>View all books in the system, manage availability, and handle book-related issues.</p>
+                <a href="/admin/books" class="view-all-btn">Manage Books</a>
+            </div>
+            
+            <div class="section-card">
+                <h3><i class="bi bi-arrow-left-right"></i> Exchange Requests</h3>
+                <p>Review all exchange requests, approve/reject transactions, and manage fulfillment.</p>
+                <a href="/admin/exchanges" class="view-all-btn">Manage Exchanges</a>
+            </div>
+            
+            <div class="section-card">
+                <h3><i class="bi bi-heart-fill"></i> Wishlist Management</h3>
+                <p>Monitor user wishlists and subscription activity. Match users with available books.</p>
+                <a href="/admin/wishlists" class="view-all-btn">Manage Wishlists</a>
+            </div>
+        </div>
+            </div>
+        </section>
+        </main>
+    
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+</body>
+</html>

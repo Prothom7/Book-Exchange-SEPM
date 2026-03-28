@@ -54,7 +54,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error").permitAll()
+                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error", "/landingpage").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
 
@@ -63,11 +63,17 @@ public class SecurityConfig {
 
                 // Role-specific APIs
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/moderator/**").hasAnyRole("MODERATOR", "ADMIN")
-                .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**")
+                .requestMatchers("/api/moderator/**").hasRole("MODERATOR")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**", "/api/wishlist/**", "/api/notifications/**")
                 .hasAnyRole("USER", "MODERATOR", "ADMIN")
 
-                // App pages require authentication (including /, /landingpage, /browse)
+                // REST API endpoints
+                .requestMatchers("/api/books-rest", "/api/books-rest/**").authenticated()
+                .requestMatchers("/api/exchange-rest", "/api/exchange-rest/**").authenticated()
+                .requestMatchers("/api/wishlist-rest", "/api/wishlist-rest/**").authenticated()
+
+                // All other app pages and requests require authentication
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

@@ -5,8 +5,13 @@ import com.example.book_exchange_sepm.dto.BookRequest;
 import com.example.book_exchange_sepm.dto.BookResponse;
 import com.example.book_exchange_sepm.entity.Book;
 import com.example.book_exchange_sepm.entity.User;
+import com.example.book_exchange_sepm.event.BookAvailableEvent;
 import com.example.book_exchange_sepm.exception.ResourceNotFoundException;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
+import com.example.book_exchange_sepm.pattern.singleton.BookEventManager;
+import com.example.book_exchange_sepm.pattern.strategy.BookSearchStrategy;
+import com.example.book_exchange_sepm.pattern.strategy.BookSearchStrategyResolver;
+import com.example.book_exchange_sepm.pattern.strategy.SearchMode;
 import com.example.book_exchange_sepm.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +26,14 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final UserService userService;
+    private final BookSearchStrategyResolver strategyResolver;
 
-    public BookService(BookRepository bookRepository, UserService userService) {
+    public BookService(BookRepository bookRepository,
+                       UserService userService,
+                       BookSearchStrategyResolver strategyResolver) {
         this.bookRepository = bookRepository;
         this.userService = userService;
+        this.strategyResolver = strategyResolver;
     }
 
     @Transactional(readOnly = true)
@@ -41,6 +50,7 @@ public class BookService {
         boolean availableOnly = searchForm.isAvailableOnly();
 
         Stream<Book> stream = bookRepository.findAllByOrderByTitleAsc().stream();
+        stream = stream.filter(book -> Boolean.TRUE.equals(book.getAvailable()));
 
         if (keyword != null) {
             stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), keyword)
@@ -90,6 +100,21 @@ public class BookService {
         return bookRepository.findDistinctLanguages();
     }
 
+    @Transactional(readOnly = true)
+    public List<BookResponse> searchAvailableBooks(String query, SearchMode searchMode) {
+        if (query == null || query.isBlank()) {
+            return getAvailableBooks();
+        }
+
+        BookSearchStrategy strategy = strategyResolver.resolve(searchMode == null ? SearchMode.KEYWORD : searchMode);
+        String normalizedQuery = query.trim();
+
+        return bookRepository.findByAvailableTrue().stream()
+            .filter(book -> strategy.matches(book, normalizedQuery))
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
+    }
+
     @Transactional
     public BookResponse createBook(BookRequest request) {
         User currentUser = userService.getCurrentUserEntity();
@@ -100,6 +125,7 @@ public class BookService {
         book.setAvailable(true);
 
         Book savedBook = bookRepository.save(book);
+        publishBookAvailableEvent(savedBook);
         return convertToResponse(savedBook);
     }
 
@@ -166,8 +192,16 @@ public class BookService {
     public BookResponse markBookAvailability(Long bookId, Boolean available) {
         Book book = findBookById(bookId);
         userService.validateOwnershipOrAdmin(book.getOwner().getId());
+
+        boolean wasAvailable = Boolean.TRUE.equals(book.getAvailable());
         book.setAvailable(available);
-        return convertToResponse(bookRepository.save(book));
+        Book updatedBook = bookRepository.save(book);
+
+        if (!wasAvailable && Boolean.TRUE.equals(available)) {
+            publishBookAvailableEvent(updatedBook);
+        }
+
+        return convertToResponse(updatedBook);
     }
 
     @Transactional(readOnly = true)
@@ -179,7 +213,9 @@ public class BookService {
     private void applyBookRequest(Book book, BookRequest request) {
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
+        book.setGenre(request.getGenre());
         book.setDescription(request.getDescription());
+        book.setImageUrl(request.getImageUrl());
         book.setIsbn(request.getIsbn());
         book.setBookCondition(request.getCondition());
 
@@ -199,7 +235,9 @@ public class BookService {
             book.getId(),
             book.getTitle(),
             book.getAuthor(),
+            book.getGenre(),
             book.getDescription(),
+            book.getImageUrl(),
             book.getIsbn(),
             book.getOwner() != null ? book.getOwner().getId() : null,
             book.getOwner() != null ? book.getOwner().getUsername() : null,
@@ -229,5 +267,18 @@ public class BookService {
             return false;
         }
         return left.equalsIgnoreCase(right);
+    }
+
+    private void publishBookAvailableEvent(Book book) {
+        if (!Boolean.TRUE.equals(book.getAvailable())) {
+            return;
+        }
+
+        BookEventManager.getInstance().publish(new BookAvailableEvent(
+            book.getId(),
+            book.getTitle(),
+            book.getAuthor(),
+            book.getGenre()
+        ));
     }
 }

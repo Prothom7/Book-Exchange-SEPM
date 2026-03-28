@@ -18,8 +18,14 @@ public class ExchangeRequestResponse {
     private String bookTitle;
     private Long bookOwnerId;
     private String bookOwnerUsername;
+    private Long offeredBookId;
+    private String offeredBookTitle;
     private String status;
     private String message;
+    private String moderatorComment;
+    private Long reviewedById;
+    private String reviewedByUsername;
+    private LocalDateTime reviewedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

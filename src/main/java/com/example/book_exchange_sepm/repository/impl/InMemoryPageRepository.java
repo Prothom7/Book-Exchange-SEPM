@@ -16,6 +16,8 @@ public class InMemoryPageRepository implements PageRepository {
             new NavItem("Landing Page", "/landingpage"),
             new NavItem("Browse", "/browse"),
             new NavItem("Book", "/book"),
+            new NavItem("Exchange", "/exchange"),
+            new NavItem("Wishlist", "/wishlist"),
             new NavItem("Profile", "/profile")
     );
 
@@ -75,6 +77,24 @@ public class InMemoryPageRepository implements PageRepository {
                         "Your Reader Profile",
                         "Keep your account details and activity in one place.",
                         "/profile"
+                )
+        );
+        pageContents.put(
+                "exchange",
+                new PageContent(
+                        "Book Exchange | Exchange",
+                        "Manage Exchange Requests",
+                        "Track your requests and review moderation updates.",
+                        "/exchange"
+                )
+        );
+        pageContents.put(
+                "wishlist",
+                new PageContent(
+                        "Book Exchange | Wishlist",
+                        "Wishlist and Notifications",
+                        "Subscribe to wanted books and monitor availability alerts.",
+                        "/wishlist"
                 )
         );
         return pageContents;

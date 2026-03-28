@@ -1,12 +1,16 @@
 package com.example.book_exchange_sepm.controller;
 
+import com.example.book_exchange_sepm.dto.ProfileImageUpdateRequest;
 import com.example.book_exchange_sepm.dto.UserResponse;
 import com.example.book_exchange_sepm.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +28,16 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     public ResponseEntity<UserResponse> getCurrentUserProfile() {
         UserResponse user = userService.getCurrentUser();
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    /**
+     * Update current user profile image
+     */
+    @PutMapping("/profile-image")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    public ResponseEntity<UserResponse> updateProfileImage(@Valid @RequestBody ProfileImageUpdateRequest request) {
+        UserResponse user = userService.updateCurrentUserProfileImage(request.getImageDataUrl());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

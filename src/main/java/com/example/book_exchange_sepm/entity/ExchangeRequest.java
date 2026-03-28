@@ -25,12 +25,26 @@ public class ExchangeRequest {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "offered_book_id", nullable = false)
+    private Book offeredBook;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status = Status.PENDING;
 
     @Column(length = 500)
     private String message;
+
+    @Column(length = 500)
+    private String moderatorComment;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reviewed_by")
+    private User reviewedBy;
+
+    @Column
+    private LocalDateTime reviewedAt;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

@@ -183,3 +183,264 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.admin-section {
+  padding: 2rem 0 3rem;
+}
+
+.admin-page-header {
+  background: var(--pastel-navbar-active);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: 0 1px 10px rgba(86, 98, 138, 0.14);
+  margin-bottom: 1rem;
+}
+
+.admin-page-header h1 {
+  margin: 0;
+}
+
+.admin-page-header p {
+  margin: 0.35rem 0 0;
+}
+
+.search-bar {
+  margin: 0 0 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: 10px;
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--pastel-page);
+}
+
+.stats-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.stat-mini {
+  background: var(--pastel-navbar-active);
+  border-radius: var(--radius-lg);
+  padding: 0.9rem;
+  text-align: center;
+  box-shadow: 0 1px 10px rgba(86, 98, 138, 0.14);
+}
+
+.stat-mini .label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.stat-mini .value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4b578c;
+}
+
+.dashboard-grid,
+.sections-grid,
+.books-grid,
+.pending-cards {
+  display: grid;
+  gap: 1rem;
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.sections-grid,
+.books-grid,
+.pending-cards {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.section-card,
+.book-card,
+.pending-card,
+.stat-card {
+  background: var(--pastel-navbar-active);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: 0 1px 10px rgba(86, 98, 138, 0.14);
+}
+
+.stat-card h3 {
+  margin: 0 0 0.4rem;
+}
+
+.stat-card .value {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #4b578c;
+}
+
+.quick-action-btn,
+.view-all-btn,
+.table-view-btn,
+.action-btn,
+.filter-btn {
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  padding: 0.52rem 0.9rem;
+  border: 0;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  background: var(--pastel-navbar);
+  color: #2e3560;
+}
+
+.quick-action-btn:hover,
+.view-all-btn:hover,
+.table-view-btn:hover,
+.action-btn:hover,
+.filter-btn:hover,
+.filter-btn.active {
+  background: var(--pastel-navbar-hover);
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.users-table,
+.books-table,
+.exchanges-table,
+.wishlists-table,
+.pending-requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--pastel-navbar-active);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 10px rgba(86, 98, 138, 0.14);
+}
+
+.users-table th,
+.users-table td,
+.books-table th,
+.books-table td,
+.exchanges-table th,
+.exchanges-table td,
+.wishlists-table th,
+.wishlists-table td,
+.pending-requests-table th,
+.pending-requests-table td {
+  text-align: left;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e3e9ff;
+}
+
+.users-table th,
+.books-table th,
+.exchanges-table th,
+.wishlists-table th,
+.pending-requests-table th {
+  background: var(--pastel-navbar);
+  color: #2e3560;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: var(--radius-pill);
+  padding: 0.22rem 0.55rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.badge-pending,
+.badge-normal {
+  background: #fff4cc;
+  color: #6f5600;
+}
+
+.badge-approved,
+.badge-low,
+.badge-active,
+.badge-verified,
+.badge-available {
+  background: #e2f6ea;
+  color: #1d5a3b;
+}
+
+.badge-rejected,
+.badge-high,
+.badge-inactive,
+.badge-unverified {
+  background: #ffe2e5;
+  color: #7d2f37;
+}
+
+.badge-completed,
+.badge-admin,
+.badge-moderator,
+.badge-user,
+.badge-allocated,
+.badge-condition {
+  background: #e7edff;
+  color: #2f4379;
+}
+
+.book-card-header {
+  border-radius: 12px;
+  background: var(--pastel-navbar);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-card-body,
+.pending-details,
+.message-box,
+.book-info {
+  margin-top: 0.8rem;
+}
+
+.book-info,
+.pending-details,
+.message-box {
+  background: var(--pastel-page);
+  border-radius: 10px;
+  padding: 0.7rem;
+}
+
+.action-buttons,
+.book-card-actions {
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.books-table {
+  display: none;
+}
+
+.books-table.active {
+  display: table;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+@media (max-width: 768px) {
+  .action-buttons,
+  .book-card-actions {
+    flex-direction: column;
+  }
+}
