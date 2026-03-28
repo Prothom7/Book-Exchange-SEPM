@@ -6,14 +6,17 @@ import com.example.book_exchange_sepm.controller.form.BookSearchForm;
 import com.example.book_exchange_sepm.entity.Book;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
+import com.example.book_exchange_sepm.pattern.singleton.BookEventManager;
 import com.example.book_exchange_sepm.pattern.strategy.BookSearchStrategyResolver;
 import com.example.book_exchange_sepm.repository.BookRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.List;
 
@@ -41,6 +44,13 @@ class BookServiceTest {
 
     @InjectMocks
     private BookService bookService;
+
+    @BeforeEach
+    void resetBookEventSubscribers() throws Exception {
+        Field subscribersField = BookEventManager.class.getDeclaredField("subscribers");
+        subscribersField.setAccessible(true);
+        ((List<?>) subscribersField.get(BookEventManager.getInstance())).clear();
+    }
 
     @Test
     void createBook_ShouldAssignCurrentUserAsOwnerAndAvailableTrue() {

@@ -7,8 +7,12 @@ import com.example.book_exchange_sepm.entity.Role;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.exception.DuplicateUserException;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
+import com.example.book_exchange_sepm.repository.BookRepository;
+import com.example.book_exchange_sepm.repository.ExchangeRequestRepository;
 import com.example.book_exchange_sepm.repository.RoleRepository;
 import com.example.book_exchange_sepm.repository.UserRepository;
+import com.example.book_exchange_sepm.repository.UserNotificationRepository;
+import com.example.book_exchange_sepm.repository.WishlistSubscriptionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +39,24 @@ class AuthenticationServiceIntegrationTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private ExchangeRequestRepository exchangeRequestRepository;
+
+    @Autowired
+    private WishlistSubscriptionRepository wishlistSubscriptionRepository;
+
+    @Autowired
+    private UserNotificationRepository userNotificationRepository;
+
+    @Autowired
+    private BookRepository bookRepository;
+
     @BeforeEach
     void setUp() {
+        exchangeRequestRepository.deleteAll();
+        userNotificationRepository.deleteAll();
+        wishlistSubscriptionRepository.deleteAll();
+        bookRepository.deleteAll();
         userRepository.deleteAll();
     }
 

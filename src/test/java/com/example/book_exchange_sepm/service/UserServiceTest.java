@@ -81,15 +81,6 @@ class UserServiceTest {
 
     @Test
     void updateCurrentUserProfileImage_ShouldThrow_WhenImageTooLarge() {
-        setCurrentAuth("maria");
-
-        User user = new User();
-        user.setId(3L);
-        user.setUsername("maria");
-        user.setEmail("maria@example.com");
-
-        when(userRepository.findByUsername("maria")).thenReturn(Optional.of(user));
-
         byte[] large = new byte[(2 * 1024 * 1024) + 5];
         String payload = Base64.getEncoder().encodeToString(large);
         String dataUrl = "data:image/png;base64," + payload;
