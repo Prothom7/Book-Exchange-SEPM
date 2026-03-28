@@ -1,6 +1,6 @@
 .page-banner {
   padding: 3rem 0;
-  background: linear-gradient(120deg, #e4f0ff 0%, #f0f8e7 100%);
+  background: linear-gradient(135deg, var(--pastel-header) 0%, #eaf3ff 100%);
 }
 
 .page-banner h2 {
@@ -10,7 +10,7 @@
 
 .exchange-workspace {
   padding: 2rem 0 3rem;
-  background: #f8fbff;
+  background: var(--pastel-page);
 }
 
 .exchange-grid {
@@ -20,9 +20,9 @@
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #dce5f2;
-  border-radius: 16px;
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
   padding: 1rem;
   box-shadow: 0 8px 22px rgba(45, 62, 104, 0.08);
 }
@@ -83,19 +83,19 @@
 }
 
 .chip-btn {
-  background: #e6ecfb;
+  background: var(--pastel-navbar);
   color: #2b3d6d;
 }
 
 .approve-btn {
-  background: #d9f3e5;
-  color: #14563a;
+  background: #e2f3ea;
+  color: #225743;
 }
 
 .reject-btn,
 .cancel-btn {
-  background: #ffdede;
-  color: #7a2f2f;
+  background: #ffe4e6;
+  color: #7d2f37;
 }
 
 .status-chip {
@@ -106,6 +106,10 @@
   font-weight: 700;
   background: #e6edff;
   color: #304272;
+}
+
+.request-card {
+  box-shadow: 0 4px 12px rgba(63, 79, 124, 0.06);
 }
 
 @media (max-width: 900px) {

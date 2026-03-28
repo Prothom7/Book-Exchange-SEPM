@@ -1,6 +1,6 @@
 .page-banner {
   padding: 3rem 0;
-  background: #fef3c7;
+  background: linear-gradient(135deg, var(--pastel-header) 0%, #f7f3ff 100%);
 }
 
 .page-banner h2 {
@@ -15,15 +15,15 @@
 
 .browse-content {
   padding: 2rem 0 3rem;
-  background: #fffef9;
+  background: var(--pastel-page);
 }
 
 .search-panel {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
   padding: 1.25rem;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 22px rgba(63, 79, 124, 0.08);
 }
 
 .search-main label,
@@ -50,19 +50,19 @@
 .filter-grid input,
 .filter-grid select {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--pastel-navbar-hover);
   border-radius: 10px;
   padding: 0.62rem 0.7rem;
   font: inherit;
-  background: #ffffff;
+  background: var(--pastel-page);
 }
 
 .search-main input:focus,
 .filter-grid input:focus,
 .filter-grid select:focus {
-  outline: 2px solid #0ea5e9;
+  outline: 2px solid #8da2db;
   outline-offset: 1px;
-  border-color: #0ea5e9;
+  border-color: #8da2db;
 }
 
 .filter-grid {
@@ -74,9 +74,9 @@
 
 .filters-dropdown {
   margin-top: 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--pastel-navbar-hover);
   border-radius: 12px;
-  background: #f9fafb;
+  background: var(--pastel-page);
   padding: 0.65rem 0.8rem;
 }
 
@@ -145,13 +145,13 @@
 }
 
 .button-row button {
-  background: #0ea5e9;
-  color: #ffffff;
+  background: var(--pastel-navbar);
+  color: #2e3560;
 }
 
 .clear-btn {
-  background: #e5e7eb;
-  color: #111827;
+  background: var(--pastel-navbar-hover);
+  color: #2e3560;
 }
 
 .results-meta {
@@ -166,16 +166,28 @@
 .books-grid {
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .book-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
   padding: 1rem;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 22px rgba(63, 79, 124, 0.08);
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+}
+
+.book-cover {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #d6dcf6;
+  background: #ffffff;
 }
 
 .book-card-top {
@@ -185,8 +197,8 @@
 }
 
 .chip {
-  background: #dcfce7;
-  color: #166534;
+  background: #e8f0ff;
+  color: #3b4a78;
   border-radius: 999px;
   padding: 0.22rem 0.62rem;
   font-size: 0.78rem;
@@ -194,14 +206,14 @@
 }
 
 .chip.secondary {
-  background: #e0f2fe;
-  color: #075985;
+  background: #edf4ef;
+  color: #3a6152;
 }
 
 .book-card h3 {
-  margin: 0.7rem 0 0.45rem;
+  margin: 0.15rem 0;
   font-size: 1.12rem;
-  color: #0f172a;
+  color: #25345c;
 }
 
 .byline {
@@ -226,7 +238,7 @@
 .availability {
   margin: 0.8rem 0 0;
   font-weight: 600;
-  color: #0f766e;
+  color: #2e4d87;
 }
 
 .book-actions {
@@ -248,13 +260,36 @@
 }
 
 .request-btn {
-  background: #d8ecff;
-  color: #0f4f78;
+  background: #dfe9ff;
+  color: #324e80;
 }
 
 .wishlist-btn {
-  background: #efe7ff;
-  color: #4f2c8b;
+  background: #efe8fb;
+  color: #5a3e84;
+}
+
+.browse-pagination {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.browse-page-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.42rem 0.74rem;
+  background: var(--pastel-navbar);
+  color: #2e3560;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.browse-page-btn.active {
+  background: #dce5ff;
 }
 
 .card-status {
@@ -284,14 +319,14 @@
   }
 
   .books-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 700px) {
   .filter-grid,
   .books-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .search-main {
@@ -306,5 +341,11 @@
   .search-actions {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .books-grid {
+    grid-template-columns: 1fr;
   }
 }

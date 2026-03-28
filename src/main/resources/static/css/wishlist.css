@@ -1,6 +1,6 @@
 .page-banner {
   padding: 3rem 0;
-  background: linear-gradient(130deg, #f1e8ff 0%, #e7f8f1 100%);
+  background: linear-gradient(135deg, var(--pastel-header) 0%, #edf8f3 100%);
 }
 
 .page-banner h2 {
@@ -10,7 +10,7 @@
 
 .wishlist-workspace {
   padding: 2rem 0 3rem;
-  background: #fbfaff;
+  background: var(--pastel-page);
 }
 
 .wishlist-grid {
@@ -20,9 +20,9 @@
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #e2def0;
-  border-radius: 16px;
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
   padding: 1rem;
   box-shadow: 0 8px 24px rgba(66, 54, 103, 0.08);
 }
@@ -42,10 +42,11 @@
 }
 
 .wishlist-form input {
-  border: 1px solid #d7d2e8;
+  border: 1px solid var(--pastel-navbar-hover);
   border-radius: 10px;
   padding: 0.6rem 0.7rem;
   font: inherit;
+  background: var(--pastel-page);
 }
 
 .wishlist-form button,
@@ -61,8 +62,8 @@
 .wishlist-form button {
   margin-top: 0.5rem;
   padding: 0.58rem 0.88rem;
-  background: #ddcff7;
-  color: #432e72;
+  background: var(--pastel-navbar);
+  color: #2e3560;
 }
 
 .status-line {
@@ -76,10 +77,11 @@
 }
 
 .list-item {
-  border: 1px solid #e3dff2;
+  border: 1px solid #d9e0f6;
   border-radius: 12px;
   padding: 0.7rem;
-  background: #fdfcff;
+  background: #fcfdff;
+  box-shadow: 0 4px 12px rgba(63, 79, 124, 0.06);
 }
 
 .list-item h4 {
@@ -94,8 +96,8 @@
 .list-item button {
   margin-top: 0.45rem;
   padding: 0.36rem 0.66rem;
-  background: #ffe0e0;
-  color: #7b2d2d;
+  background: #ffe4e6;
+  color: #7d2f37;
 }
 
 .notification-read {
