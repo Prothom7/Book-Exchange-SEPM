@@ -50,6 +50,7 @@ public class BookService {
         boolean availableOnly = searchForm.isAvailableOnly();
 
         Stream<Book> stream = bookRepository.findAllByOrderByTitleAsc().stream();
+        stream = stream.filter(book -> Boolean.TRUE.equals(book.getAvailable()));
 
         if (keyword != null) {
             stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), keyword)

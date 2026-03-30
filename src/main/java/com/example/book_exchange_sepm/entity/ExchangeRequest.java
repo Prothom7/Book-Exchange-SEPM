@@ -60,6 +60,12 @@ public class ExchangeRequest {
     @Column
     private LocalDateTime completedAt;
 
+    @Column
+    private LocalDateTime requesterAcceptedAt;
+
+    @Column
+    private LocalDateTime ownerAcceptedAt;
+
     public enum Status {
         PENDING,
         APPROVED,

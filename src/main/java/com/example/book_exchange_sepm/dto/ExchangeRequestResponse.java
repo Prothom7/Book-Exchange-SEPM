@@ -31,4 +31,6 @@ public class ExchangeRequestResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime completedAt;
+    private LocalDateTime requesterAcceptedAt;
+    private LocalDateTime ownerAcceptedAt;
 }

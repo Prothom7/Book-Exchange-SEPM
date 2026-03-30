@@ -75,7 +75,7 @@ public class ExchangeRequestController {
      * Only book owner can approve
      */
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     public ResponseEntity<ExchangeRequestResponse> approveExchangeRequest(@PathVariable Long id) {
         ExchangeRequestResponse response = exchangeRequestService.approveExchangeRequest(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -86,9 +86,20 @@ public class ExchangeRequestController {
      * Only book owner can reject
      */
     @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasRole('MODERATOR')")
     public ResponseEntity<ExchangeRequestResponse> rejectExchangeRequest(@PathVariable Long id) {
         ExchangeRequestResponse response = exchangeRequestService.rejectExchangeRequest(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * Participant agreement stage.
+     * Only requester or owner can confirm a pending exchange.
+     */
+    @PatchMapping("/{id}/accept")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    public ResponseEntity<ExchangeRequestResponse> acceptExchangeRequest(@PathVariable Long id) {
+        ExchangeRequestResponse response = exchangeRequestService.acceptExchangeRequest(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

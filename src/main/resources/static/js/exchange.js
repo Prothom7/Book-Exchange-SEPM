@@ -85,9 +85,10 @@ async function loadMyRequests() {
     myRequestsList.innerHTML = items.map((item) => {
       let actions = "";
       if (item.status === "PENDING") {
-        actions = `<div class="inline-actions"><button class="cancel-btn" data-action="cancel" type="button">Cancel</button></div>`;
-      } else if (item.status === "APPROVED") {
-        actions = `<div class="inline-actions"><button class="approve-btn" data-action="complete" type="button">Complete Exchange</button></div>`;
+        const acceptBtn = item.requesterAcceptedAt
+          ? ""
+          : `<button class="approve-btn" data-action="accept" type="button">Accept</button>`;
+        actions = `<div class="inline-actions">${acceptBtn}<button class="cancel-btn" data-action="cancel" type="button">Cancel</button></div>`;
       }
       return requestCardTemplate(item, actions);
     }).join("");
@@ -102,15 +103,10 @@ async function loadOwnerRequests() {
     ownerRequestsList.innerHTML = items.length
       ? items.map((item) => {
           const actions = item.status === "PENDING"
-            ? '<div class="inline-actions">' +
-                '<button class="approve-btn" data-action="approve" type="button">Approve</button>' +
-                '<button class="reject-btn" data-action="reject" type="button">Reject</button>' +
-              '</div>'
-            : (item.status === "APPROVED"
-              ? '<div class="inline-actions">' +
-                  '<button class="approve-btn" data-action="complete" type="button">Complete Exchange</button>' +
-                '</div>'
-              : "");
+            ? (item.ownerAcceptedAt
+              ? '<div class="inline-actions"><span class="status-chip">Waiting for moderator review</span></div>'
+              : '<div class="inline-actions"><button class="approve-btn" data-action="accept" type="button">Accept</button></div>')
+            : "";
           return requestCardTemplate(item, actions);
         }).join("")
       : "<p>No incoming requests for your books yet.</p>";
