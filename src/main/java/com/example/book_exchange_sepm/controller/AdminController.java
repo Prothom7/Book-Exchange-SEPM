@@ -105,7 +105,8 @@ public class AdminController {
         model.addAttribute("totalExchanges", exchanges.size());
         model.addAttribute("pendingCount", exchanges.stream().filter(e -> "PENDING".equals(String.valueOf(e.get("status")))).count());
         model.addAttribute("approvedCount", exchanges.stream().filter(e -> "APPROVED".equals(String.valueOf(e.get("status")))).count());
-        model.addAttribute("completedCount", exchanges.stream().filter(e -> "COMPLETED".equals(String.valueOf(e.get("status")))).count());
+        model.addAttribute("rejectedCount", exchanges.stream().filter(e -> "REJECTED".equals(String.valueOf(e.get("status")))).count());
+        model.addAttribute("cancelledCount", exchanges.stream().filter(e -> "CANCELLED".equals(String.valueOf(e.get("status")))).count());
         model.addAttribute("pageTitle", "Exchange Management");
         model.addAttribute("adminNavItems", ADMIN_NAV_ITEMS);
         model.addAttribute("activePath", "/admin/exchanges");

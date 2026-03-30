@@ -46,8 +46,12 @@
                 <div class="value" th:text="${approvedCount ?: 0}">0</div>
             </div>
             <div class="stat-mini">
-                <div class="label">Completed</div>
-                <div class="value" th:text="${completedCount ?: 0}">0</div>
+                <div class="label">Rejected</div>
+                <div class="value" th:text="${rejectedCount ?: 0}">0</div>
+            </div>
+            <div class="stat-mini">
+                <div class="label">Cancelled</div>
+                <div class="value" th:text="${cancelledCount ?: 0}">0</div>
             </div>
         </div>
         
@@ -61,8 +65,8 @@
             <button class="filter-btn active" onclick="filterByStatus('All')">All</button>
             <button class="filter-btn" onclick="filterByStatus('PENDING')">Pending</button>
             <button class="filter-btn" onclick="filterByStatus('APPROVED')">Approved</button>
-            <button class="filter-btn" onclick="filterByStatus('COMPLETED')">Completed</button>
             <button class="filter-btn" onclick="filterByStatus('REJECTED')">Rejected</button>
+            <button class="filter-btn" onclick="filterByStatus('CANCELLED')">Cancelled</button>
         </div>
         
         <!-- Exchanges Table -->
@@ -97,7 +101,7 @@
                     </td>
                     <td>
                         <span class="badge" 
-                              th:classappend="${exchange.status == 'PENDING' ? 'badge-pending' : exchange.status == 'APPROVED' ? 'badge-approved' : exchange.status == 'COMPLETED' ? 'badge-completed' : 'badge-rejected'}"
+                                                            th:classappend="${exchange.status == 'PENDING' ? 'badge-pending' : exchange.status == 'APPROVED' ? 'badge-approved' : exchange.status == 'CANCELLED' ? 'badge-completed' : 'badge-rejected'}"
                               th:text="${exchange.status}">
                             STATUS
                         </span>
@@ -106,13 +110,7 @@
                         <small th:text="${#strings.abbreviate(exchange.notes, 50)}">Message</small>
                     </td>
                     <td th:text="${exchange.createdAt}">Date</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn btn-view" th:onclick="|viewExchange(${exchange.id})|">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
-                    </td>
+                    <td><small>Managed in user/moderator exchange flows</small></td>
                 </tr>
             </tbody>
         </table>
@@ -166,11 +164,6 @@
                     row.style.display = row.getAttribute('data-status') === status ? '' : 'none';
                 }
             });
-        }
-        
-        // View exchange details
-        function viewExchange(exchangeId) {
-            window.location.href = `/admin/exchanges/${exchangeId}`;
         }
         
     </script>

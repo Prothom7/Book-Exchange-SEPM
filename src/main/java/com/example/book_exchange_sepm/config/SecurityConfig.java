@@ -56,6 +56,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error", "/landingpage").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/ws-chat/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
 
                 // Public authentication APIs

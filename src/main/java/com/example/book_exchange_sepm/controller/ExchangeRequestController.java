@@ -54,7 +54,7 @@ public class ExchangeRequestController {
      * Moderator queue for pending exchange requests.
      */
     @GetMapping("/moderation/pending")
-    @PreAuthorize("hasRole('MODERATOR')")
+    @PreAuthorize("hasAnyRole('MODERATOR', 'ADMIN')")
     public ResponseEntity<List<ExchangeRequestResponse>> getPendingForModeration() {
         List<ExchangeRequestResponse> requests = exchangeRequestService.getPendingRequestsForModeration();
         return new ResponseEntity<>(requests, HttpStatus.OK);
@@ -75,7 +75,7 @@ public class ExchangeRequestController {
      * Only book owner can approve
      */
     @PatchMapping("/{id}/approve")
-    @PreAuthorize("hasRole('MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     public ResponseEntity<ExchangeRequestResponse> approveExchangeRequest(@PathVariable Long id) {
         ExchangeRequestResponse response = exchangeRequestService.approveExchangeRequest(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -86,7 +86,7 @@ public class ExchangeRequestController {
      * Only book owner can reject
      */
     @PatchMapping("/{id}/reject")
-    @PreAuthorize("hasRole('MODERATOR')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     public ResponseEntity<ExchangeRequestResponse> rejectExchangeRequest(@PathVariable Long id) {
         ExchangeRequestResponse response = exchangeRequestService.rejectExchangeRequest(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -100,6 +100,19 @@ public class ExchangeRequestController {
     @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
     public ResponseEntity<ExchangeRequestResponse> cancelExchangeRequest(@PathVariable Long id) {
         ExchangeRequestResponse response = exchangeRequestService.cancelExchangeRequest(id);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * CRITICAL: Complete an exchange and transfer ownership
+     * Only requester or book owner can complete
+     * Transfers books between users
+     * Flow: PENDING -> APPROVED -> COMPLETED (ownership transfer)
+     */
+    @PatchMapping("/{id}/complete")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    public ResponseEntity<ExchangeRequestResponse> completeExchangeRequest(@PathVariable Long id) {
+        ExchangeRequestResponse response = exchangeRequestService.completeExchangeRequest(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

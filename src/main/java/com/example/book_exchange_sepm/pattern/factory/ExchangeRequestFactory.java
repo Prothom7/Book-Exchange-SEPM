@@ -31,6 +31,7 @@ public class ExchangeRequestFactory {
                                    String moderatorComment) {
         ExchangeRequest exchangeRequest = new ExchangeRequest();
         exchangeRequest.setRequester(requester);
+        exchangeRequest.setOwner(requestedBook.getOwner());
         exchangeRequest.setBook(requestedBook);
         exchangeRequest.setOfferedBook(offeredBook);
         exchangeRequest.setMessage(message);

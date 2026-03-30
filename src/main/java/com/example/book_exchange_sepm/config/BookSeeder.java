@@ -2,43 +2,49 @@ package com.example.book_exchange_sepm.config;
 
 import com.example.book_exchange_sepm.entity.Role;
 import com.example.book_exchange_sepm.entity.User;
-import com.example.book_exchange_sepm.repository.BookRepository;
-import com.example.book_exchange_sepm.repository.UserRepository;
 import com.example.book_exchange_sepm.repository.RoleRepository;
+import com.example.book_exchange_sepm.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.HashSet;
-import java.util.Optional;
 
 @Configuration
 public class BookSeeder {
 
     @Bean
-    CommandLineRunner seedBooks(BookRepository bookRepository, UserRepository userRepository, RoleRepository roleRepository) {
+    CommandLineRunner seedBooks(UserRepository userRepository, RoleRepository roleRepository) {
         return args -> {
-            // Seed admin user if not present
-            String adminUsername = "admin";
-            String adminEmail = "admin@example.com";
-            String adminPassword = "admin123";
+            Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_ADMIN")));
+            Role moderatorRole = roleRepository.findByName("ROLE_MODERATOR")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
-            if (!userRepository.existsByUsername(adminUsername)) {
-                Optional<Role> adminRoleOpt = roleRepository.findByName("ROLE_ADMIN");
-                Role adminRole = adminRoleOpt.orElseGet(() -> roleRepository.save(new Role(null, "ROLE_ADMIN")));
-
-                User admin = new User();
-                admin.setUsername(adminUsername);
-                admin.setEmail(adminEmail);
-                admin.setPassword(new BCryptPasswordEncoder().encode(adminPassword));
-                HashSet<Role> roles = new HashSet<>();
-                roles.add(adminRole);
-                admin.setRoles(roles);
-                admin.setEmailVerified(true);
-                userRepository.save(admin);
-                System.out.println("Seeded default admin user: username='admin', password='admin123'");
-            }
+            ensureUser(userRepository, "admin", "admin@example.com", "admin123", adminRole);
+            ensureUser(userRepository, "moderator", "moderator@example.com", "moderator123", moderatorRole);
         };
+    }
+
+    private void ensureUser(UserRepository userRepository,
+                            String username,
+                            String email,
+                            String rawPassword,
+                            Role role) {
+        if (userRepository.existsByUsername(username)) {
+            return;
+        }
+
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(new BCryptPasswordEncoder().encode(rawPassword));
+        HashSet<Role> roles = new HashSet<>();
+        roles.add(role);
+        user.setRoles(roles);
+        user.setEmailVerified(true);
+        userRepository.save(user);
+        System.out.println("Seeded default user: username='" + username + "'");
     }
 }

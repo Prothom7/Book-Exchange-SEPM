@@ -8,6 +8,7 @@ const refreshBooksBtn = document.getElementById("refreshBooksBtn");
 let activeToken = tokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
 
 function withAuthHeaders(extra = {}) {
+  activeToken = tokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
   if (!activeToken) {
     return extra;
   }

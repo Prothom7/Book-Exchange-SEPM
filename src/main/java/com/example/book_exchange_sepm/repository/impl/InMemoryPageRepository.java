@@ -17,6 +17,7 @@ public class InMemoryPageRepository implements PageRepository {
             new NavItem("Browse", "/browse"),
             new NavItem("Book", "/book"),
             new NavItem("Exchange", "/exchange"),
+            new NavItem("Exchange Chat", "/exchange-chat"),
             new NavItem("Wishlist", "/wishlist"),
             new NavItem("Profile", "/profile")
     );
@@ -77,6 +78,15 @@ public class InMemoryPageRepository implements PageRepository {
                         "Your Reader Profile",
                         "Keep your account details and activity in one place.",
                         "/profile"
+                )
+        );
+        pageContents.put(
+                "exchange-chat",
+                new PageContent(
+                        "Book Exchange | Exchange Chat",
+                        "Chat with Exchange Partners",
+                        "Discuss details and coordinate exchanges through contextual conversations.",
+                        "/exchange-chat"
                 )
         );
         pageContents.put(

@@ -50,7 +50,6 @@ public class BookService {
         boolean availableOnly = searchForm.isAvailableOnly();
 
         Stream<Book> stream = bookRepository.findAllByOrderByTitleAsc().stream();
-        stream = stream.filter(book -> Boolean.TRUE.equals(book.getAvailable()));
 
         if (keyword != null) {
             stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), keyword)
@@ -215,7 +214,14 @@ public class BookService {
         book.setAuthor(request.getAuthor());
         book.setGenre(request.getGenre());
         book.setDescription(request.getDescription());
-        book.setImageUrl(request.getImageUrl());
+        String imageUrl = request.getImageUrl();
+        if (imageUrl == null || imageUrl.isBlank()) {
+            String isbn = request.getIsbn();
+            if (isbn != null && !isbn.isBlank()) {
+                imageUrl = "https://covers.openlibrary.org/b/isbn/" + isbn.trim() + "-M.jpg?default=false";
+            }
+        }
+        book.setImageUrl(imageUrl);
         book.setIsbn(request.getIsbn());
         book.setBookCondition(request.getCondition());
 
@@ -297,5 +303,14 @@ public class BookService {
             book.getAuthor(),
             book.getGenre()
         ));
+    }
+
+    /**
+     * Direct book entity save for ownership transfers and internal operations
+     * Used by exchange service for ownership transfer without needing BookRequest DTO
+     */
+    @Transactional
+    public Book updateBook(Book book) {
+        return bookRepository.save(book);
     }
 }
