@@ -283,6 +283,13 @@
             return response;
         })
         .then(response => {
+            const contentType = response.headers.get('content-type') || '';
+            if (response.ok && !contentType.includes('application/json')) {
+                throw new Error('Authentication/session issue detected. Please sign in again.');
+            }
+            return response;
+        })
+        .then(response => {
             if (!response.ok) {
                 return response.json()
                     .then(errorBody => {
