@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Book Exchange</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/auth.css}">
     <style>
         .form-group:last-of-type {
@@ -96,8 +97,11 @@
         <p>Welcome back to your reading community</p>
     </div>
 
-    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
-    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div id="authToast"
+            class="auth-toast"
+            th:if="${errorMessage != null or successMessage != null}"
+            th:classappend="${errorMessage != null} ? 'toast-error toast-show' : 'toast-success toast-show'"
+            th:text="${errorMessage != null ? errorMessage : successMessage}"></div>
 
     <form th:action="@{/login}" method="post">
         <div class="form-group">
@@ -134,6 +138,17 @@
 </section>
 
 <script>
+    (function initToast() {
+        const toast = document.getElementById('authToast');
+        if (!toast) {
+            return;
+        }
+
+        window.setTimeout(() => {
+            toast.classList.remove('toast-show');
+        }, 3800);
+    })();
+
     function togglePassword() {
         const passwordInput = document.getElementById('password');
         const eyeIcon = document.getElementById('eye-icon');

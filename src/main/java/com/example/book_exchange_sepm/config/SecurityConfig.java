@@ -87,7 +87,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .successHandler(roleBasedAuthenticationSuccessHandler)
-                .failureUrl("/login?error=true")
+                .failureForwardUrl("/login-failure")
                 .permitAll()
             )
             .logout(logout -> logout
