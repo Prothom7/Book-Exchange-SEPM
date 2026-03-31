@@ -16,10 +16,12 @@ public class ExchangeRequestResponse {
     private String requesterUsername;
     private Long bookId;
     private String bookTitle;
+    private String bookImageUrl;
     private Long bookOwnerId;
     private String bookOwnerUsername;
     private Long offeredBookId;
     private String offeredBookTitle;
+    private String offeredBookImageUrl;
     private String status;
     private String message;
     private String moderatorComment;
@@ -28,4 +30,7 @@ public class ExchangeRequestResponse {
     private LocalDateTime reviewedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime completedAt;
+    private LocalDateTime requesterAcceptedAt;
+    private LocalDateTime ownerAcceptedAt;
 }

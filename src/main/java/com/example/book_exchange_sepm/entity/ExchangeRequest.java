@@ -21,6 +21,11 @@ public class ExchangeRequest {
     @JoinColumn(name = "requester_id", nullable = false)
     private User requester;
 
+    // Immutable counterparty who owned the requested book when the exchange was created.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
@@ -52,11 +57,21 @@ public class ExchangeRequest {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column
+    private LocalDateTime completedAt;
+
+    @Column
+    private LocalDateTime requesterAcceptedAt;
+
+    @Column
+    private LocalDateTime ownerAcceptedAt;
+
     public enum Status {
         PENDING,
         APPROVED,
         REJECTED,
-        CANCELLED
+        CANCELLED,
+        COMPLETED
     }
 
     @PrePersist

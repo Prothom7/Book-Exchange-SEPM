@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${page.title}">Book Exchange | Exchange Chat</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/exchange-chat.css}">
+</head>
+<body>
+    <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+    <main class="page-main">
+        <div class="page-banner">
+            <h1 th:text="${page.heading}">Exchange Chats</h1>
+            <p th:text="${page.description}">Chat with users about your book exchanges</p>
+        </div>
+
+        <div class="chat-layout">
+            <!-- Exchange List Sidebar -->
+            <div class="exchange-list-sidebar">
+                <div class="sidebar-header">
+                    <h3>Your Exchanges</h3>
+                    <div id="exchangeCount" class="exchange-count">0</div>
+                </div>
+
+                <div id="exchangeListContainer" class="exchange-item-container">
+                    <div class="empty-state">
+                        <p>No active exchanges</p>
+                        <small>Once you have pending or approved exchanges, they'll appear here</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Window -->
+            <div class="chat-window">
+                <div id="noChatSelected" class="no-chat-selected">
+                    <div class="no-chat-icon">💬</div>
+                    <h2>Select an Exchange to Chat</h2>
+                    <p>Choose an exchange from the list to start messaging</p>
+                </div>
+
+                <div id="chatContainer" class="chat-container" style="display: none;">
+                    <!-- Chat Header -->
+                    <div class="chat-header">
+                        <div class="chat-header-info">
+                            <h2 id="chatPartnerName"></h2>
+                            <div class="exchange-books-info">
+                                <span id="bookBeingRequested" class="book-info"></span>
+                                <span class="exchange-arrow">↔</span>
+                                <span id="bookOffered" class="book-info"></span>
+                            </div>
+                        </div>
+                        <div class="chat-status">
+                            <span id="exchangeStatus" class="status-badge"></span>
+                        </div>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div id="messagesContainer" class="messages-container">
+                        <div id="messagesArea" class="messages-area"></div>
+                    </div>
+
+                    <!-- Message Input -->
+                    <form id="messageSendForm" class="message-send-form">
+                        <div class="message-input-group">
+                            <textarea id="messageInput" 
+                                    placeholder="Type your message..." 
+                                    rows="3" 
+                                    maxlength="1200"
+                                    required></textarea>
+                            <div class="char-count">
+                                <span id="charCountCurrent">0</span>/<span id="charCountMax">1200</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-send">
+                            <span>Send</span>
+                            <span class="send-icon">→</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:src="@{/js/exchange-chat.js}"></script>
+</body>
+</html>

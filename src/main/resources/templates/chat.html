@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Chat</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/chat.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="page-banner">
+      <div class="container">
+        <h2 th:text="${page.heading}">Private Reader Chat</h2>
+        <p th:text="${page.description}">Start one-to-one conversations and exchange messages in real time.</p>
+      </div>
+    </section>
+
+    <section class="chat-workspace">
+      <div class="container chat-layout">
+        <aside class="chat-sidebar panel">
+          <h3>Conversations</h3>
+
+          <form id="startConversationForm" class="start-chat-form">
+            <label for="chatUsername">Start with username</label>
+            <div class="start-row">
+              <input id="chatUsername" name="username" type="text" placeholder="Enter username" required>
+              <button type="submit">Start</button>
+            </div>
+            <div id="chatUserSuggestions" class="user-suggestions" aria-live="polite"></div>
+          </form>
+
+          <div id="conversationList" class="conversation-list">
+            <p>No conversations yet.</p>
+          </div>
+        </aside>
+
+        <section class="chat-main panel">
+          <div class="chat-head">
+            <div>
+              <h3 id="activeConversationTitle">Choose a conversation</h3>
+              <p id="chatConnectionState" class="connection-state">Connecting...</p>
+            </div>
+          </div>
+
+          <div id="chatMessageList" class="chat-message-list">
+            <p class="chat-placeholder">Select a conversation to view message history.</p>
+          </div>
+
+          <form id="chatSendForm" class="chat-send-form">
+            <label for="chatMessageInput">Message</label>
+            <div class="send-row">
+              <textarea id="chatMessageInput" name="message" rows="2" placeholder="Type your message..." required></textarea>
+              <button type="submit">Send</button>
+            </div>
+            <p id="chatStatus" class="chat-status" aria-live="polite"></p>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js" defer></script>
+  <script th:src="@{/js/chat.js}" defer></script>
+</body>
+</html>

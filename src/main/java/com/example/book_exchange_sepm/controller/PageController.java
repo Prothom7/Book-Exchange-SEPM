@@ -73,6 +73,12 @@ public class PageController {
         return "wishlist";
     }
 
+    @GetMapping("/exchange-chat")
+    public String exchangeChatPage(Model model) {
+        populateModel(model, "exchange-chat");
+        return "exchange-chat";
+    }
+
     private void populateModel(Model model, String pageKey) {
         model.addAttribute("navItems", pageService.getNavigation());
         model.addAttribute("page", pageService.getPageContent(pageKey));

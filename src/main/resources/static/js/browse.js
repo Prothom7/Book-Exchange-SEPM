@@ -1,8 +1,8 @@
 const browseTokenKeys = ["jwtToken", "token", "authToken"];
-const browseToken = browseTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
 const BROWSE_PAGE_SIZE = 12;
 
 function browseHeaders(extra = {}) {
+  const browseToken = browseTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
   if (!browseToken) {
     return extra;
   }
@@ -113,12 +113,13 @@ document.addEventListener("click", async (event) => {
       });
 
       if (!response.ok) {
-        throw new Error("Request failed");
+        const payload = await response.json().catch(() => null);
+        throw new Error(payload?.message || "Request failed");
       }
 
       setCardStatus(card, "Exchange request submitted for moderator review.");
     } catch (error) {
-      setCardStatus(card, "Could not submit exchange request.", true);
+      setCardStatus(card, error?.message || "Could not submit exchange request.", true);
     }
   }
 });

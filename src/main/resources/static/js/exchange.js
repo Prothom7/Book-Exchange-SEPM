@@ -1,5 +1,4 @@
 const exchangeTokenKeys = ["jwtToken", "token", "authToken"];
-const exchangeToken = exchangeTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
 
 const myRequestsList = document.getElementById("myRequestsList");
 const ownerRequestsList = document.getElementById("ownerRequestsList");
@@ -7,6 +6,7 @@ const moderationRequestsList = document.getElementById("moderationRequestsList")
 const refreshModerationBtn = document.getElementById("refreshModerationBtn");
 
 function exchangeHeaders(extra = {}) {
+  const exchangeToken = exchangeTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
   if (!exchangeToken) {
     return extra;
   }
@@ -21,8 +21,16 @@ function statusChip(status) {
 }
 
 function requestCardTemplate(item, actions = "") {
+  const fallbackCover = "https://placehold.co/260x380/eef2ff/334155?text=Book+Cover";
+  const requestedCover = item.bookImageUrl || fallbackCover;
+  const offeredCover = item.offeredBookImageUrl || fallbackCover;
+
   return `
     <article class="request-card" data-id="${item.id}">
+      <div class="exchange-covers" style="display:flex;gap:10px;margin-bottom:8px;">
+        <img src="${requestedCover}" alt="Requested book cover" style="width:46px;height:64px;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='${fallbackCover}';">
+        <img src="${offeredCover}" alt="Offered book cover" style="width:46px;height:64px;object-fit:cover;border-radius:6px;" onerror="this.onerror=null;this.src='${fallbackCover}';">
+      </div>
       <h4>${item.bookTitle} <small>(offered: ${item.offeredBookTitle || "-"})</small></h4>
       <p>Requester: ${item.requesterUsername} | Owner: ${item.bookOwnerUsername}</p>
       <p>Status: ${statusChip(item.status)}</p>
@@ -33,15 +41,34 @@ function requestCardTemplate(item, actions = "") {
   `;
 }
 
+async function parseErrorMessage(response, fallbackMessage) {
+  try {
+    const data = await response.json();
+    if (data && typeof data.message === "string" && data.message.trim()) {
+      return data.message;
+    }
+  } catch (error) {
+    // Ignore non-JSON responses.
+  }
+  return fallbackMessage;
+}
+
 async function fetchJson(url) {
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     method: "GET",
     credentials: "include",
     headers: exchangeHeaders()
   });
 
+  if ((response.status === 401 || response.status === 403) && localStorage.getItem("jwtToken")) {
+    response = await fetch(url, {
+      method: "GET",
+      credentials: "include"
+    });
+  }
+
   if (!response.ok) {
-    throw new Error("Request failed");
+    throw new Error(await parseErrorMessage(response, "Request failed"));
   }
 
   return response.json();
@@ -56,13 +83,17 @@ async function loadMyRequests() {
     }
 
     myRequestsList.innerHTML = items.map((item) => {
-      const actions = item.status === "PENDING"
-        ? `<div class="inline-actions"><button class="cancel-btn" data-action="cancel" type="button">Cancel</button></div>`
-        : "";
+      let actions = "";
+      if (item.status === "PENDING") {
+        const acceptBtn = item.requesterAcceptedAt
+          ? ""
+          : `<button class="approve-btn" data-action="accept" type="button">Accept</button>`;
+        actions = `<div class="inline-actions">${acceptBtn}<button class="cancel-btn" data-action="cancel" type="button">Cancel</button></div>`;
+      }
       return requestCardTemplate(item, actions);
     }).join("");
   } catch (error) {
-    myRequestsList.innerHTML = "<p>Unable to load your requests.</p>";
+    myRequestsList.innerHTML = `<p>${error.message || "Unable to load your requests."}</p>`;
   }
 }
 
@@ -70,10 +101,17 @@ async function loadOwnerRequests() {
   try {
     const items = await fetchJson("/api/exchange-requests/my-book-requests");
     ownerRequestsList.innerHTML = items.length
-      ? items.map((item) => requestCardTemplate(item)).join("")
+      ? items.map((item) => {
+          const actions = item.status === "PENDING"
+            ? (item.ownerAcceptedAt
+              ? '<div class="inline-actions"><span class="status-chip">Waiting for moderator review</span></div>'
+              : '<div class="inline-actions"><button class="approve-btn" data-action="accept" type="button">Accept</button></div>')
+            : "";
+          return requestCardTemplate(item, actions);
+        }).join("")
       : "<p>No incoming requests for your books yet.</p>";
   } catch (error) {
-    ownerRequestsList.innerHTML = "<p>Unable to load owner-side requests.</p>";
+    ownerRequestsList.innerHTML = `<p>${error.message || "Unable to load owner-side requests."}</p>`;
   }
 }
 
@@ -90,19 +128,26 @@ async function loadModerationQueue() {
         )).join("")
       : "<p>No pending requests in moderator queue.</p>";
   } catch (error) {
-    moderationRequestsList.innerHTML = "<p>Moderator queue is only visible to moderators/admins.</p>";
+    moderationRequestsList.innerHTML = `<p>${error.message || "Moderator queue is only visible to moderators/admins."}</p>`;
   }
 }
 
 async function actOnRequest(id, action) {
-  const response = await fetch(`/api/exchange-requests/${id}/${action}`, {
+  let response = await fetch(`/api/exchange-requests/${id}/${action}`, {
     method: "PATCH",
     credentials: "include",
     headers: exchangeHeaders()
   });
 
+  if ((response.status === 401 || response.status === 403) && localStorage.getItem("jwtToken")) {
+    response = await fetch(`/api/exchange-requests/${id}/${action}`, {
+      method: "PATCH",
+      credentials: "include"
+    });
+  }
+
   if (!response.ok) {
-    throw new Error("Action failed");
+    throw new Error(await parseErrorMessage(response, "Action failed"));
   }
 }
 
@@ -131,12 +176,14 @@ document.addEventListener("click", async (event) => {
     await actOnRequest(id, action);
     await Promise.all([loadMyRequests(), loadOwnerRequests(), loadModerationQueue()]);
   } catch (error) {
-    card.insertAdjacentHTML("beforeend", "<p>Action failed. Try again.</p>");
+    card.insertAdjacentHTML("beforeend", `<p>${error.message || "Action failed. Try again."}</p>`);
   }
 });
 
-refreshModerationBtn.addEventListener("click", () => {
-  void loadModerationQueue();
-});
+if (refreshModerationBtn) {
+  refreshModerationBtn.addEventListener("click", () => {
+    void loadModerationQueue();
+  });
+}
 
 void Promise.all([loadMyRequests(), loadOwnerRequests(), loadModerationQueue()]);

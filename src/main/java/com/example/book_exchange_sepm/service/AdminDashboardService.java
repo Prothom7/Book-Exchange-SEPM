@@ -86,7 +86,7 @@ public class AdminDashboardService {
                     userInfo.put("role", role);
                     userInfo.put("status", "ACTIVE"); // Default to ACTIVE
                     userInfo.put("bookCount", bookRepository.findByOwner(user).size());
-                    userInfo.put("exchangeCount", exchangeRequestRepository.findByRequester_Id(user.getId()).size());
+                    userInfo.put("exchangeCount", exchangeRequestRepository.findByRequester_IdOrderByCreatedAtDesc(user.getId()).size());
                     userInfo.put("joinDate", user.getCreatedAt());
                     userInfo.put("lastLogin", user.getUpdatedAt());
                     return userInfo;
@@ -124,7 +124,7 @@ public class AdminDashboardService {
      */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getAllExchangeRequests() {
-        return exchangeRequestRepository.findAll().stream()
+        return exchangeRequestRepository.findAllByOrderByCreatedAtDesc().stream()
                 .map(request -> {
                     Map<String, Object> requestInfo = new HashMap<>();
                     requestInfo.put("id", request.getId());
@@ -132,8 +132,8 @@ public class AdminDashboardService {
                     requestInfo.put("senderName", request.getRequester().getUsername());
                     requestInfo.put("senderId", request.getRequester().getId());
                     // Receiver is the book owner
-                    requestInfo.put("receiverName", request.getBook().getOwner().getUsername());
-                    requestInfo.put("receiverId", request.getBook().getOwner().getId());
+                    requestInfo.put("receiverName", request.getOwner().getUsername());
+                    requestInfo.put("receiverId", request.getOwner().getId());
                     // Books being exchanged
                     requestInfo.put("receiverBook", request.getBook().getTitle());  // Book the requester wants
                     requestInfo.put("senderBook", request.getOfferedBook() != null ? 
@@ -160,8 +160,8 @@ public class AdminDashboardService {
                     requestInfo.put("id", request.getId());
                     requestInfo.put("senderName", request.getRequester().getUsername());
                     requestInfo.put("senderId", request.getRequester().getId());
-                    requestInfo.put("receiverName", request.getBook().getOwner().getUsername());
-                    requestInfo.put("receiverId", request.getBook().getOwner().getId());
+                    requestInfo.put("receiverName", request.getOwner().getUsername());
+                    requestInfo.put("receiverId", request.getOwner().getId());
                     requestInfo.put("receiverBook", request.getBook().getTitle());
                     requestInfo.put("senderBook", request.getOfferedBook() != null ? request.getOfferedBook().getTitle() : "N/A");
                     requestInfo.put("notes", request.getMessage());

@@ -56,6 +56,12 @@ public class AuthPageController {
         return "login";
     }
 
+    @PostMapping("/login-failure")
+    public String loginFailure(Model model) {
+        model.addAttribute("errorMessage", "Invalid username or password.");
+        return "login";
+    }
+
     @GetMapping("/register")
     public String registerPage(Model model) {
         if (!model.containsAttribute("registerRequest")) {
@@ -75,7 +81,7 @@ public class AuthPageController {
         try {
             authenticationService.register(registerRequest);
             return "redirect:/login?registered=true";
-        } catch (DuplicateUserException ex) {
+        } catch (DuplicateUserException | IllegalArgumentException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
             return "register";
         }

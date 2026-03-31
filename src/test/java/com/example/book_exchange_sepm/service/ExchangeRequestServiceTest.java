@@ -35,6 +35,9 @@ class ExchangeRequestServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ChatRoomService chatRoomService;
+
     @InjectMocks
     private ExchangeRequestService exchangeRequestService;
 
@@ -105,23 +108,29 @@ class ExchangeRequestServiceTest {
     }
 
     @Test
-    void approveExchangeRequest_ShouldApproveAndMarkBooksUnavailable() {
+    void approveExchangeRequest_ShouldCompleteAndTransferOwnership_WhenModeratorApprovesAfterBothAccept() {
         User requester = user(1L, "requester");
         User owner = user(2L, "owner");
         User moderator = user(3L, "mod");
 
         ExchangeRequest exchange = exchange(101L, requester, owner, moderator, ExchangeRequest.Status.PENDING);
+        exchange.setRequesterAcceptedAt(java.time.LocalDateTime.now());
+        exchange.setOwnerAcceptedAt(java.time.LocalDateTime.now());
 
         when(exchangeRequestRepository.findById(101L)).thenReturn(Optional.of(exchange));
         when(userService.isModerator()).thenReturn(true);
         when(userService.getCurrentUserEntity()).thenReturn(moderator);
+        when(exchangeRequestRepository.findConflictingPendingRequests(101L, 111L, 121L)).thenReturn(java.util.List.of());
+        when(bookService.updateBook(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(exchangeRequestRepository.save(exchange)).thenReturn(exchange);
 
         ExchangeRequestResponse response = exchangeRequestService.approveExchangeRequest(101L);
 
-        assertEquals("APPROVED", response.getStatus());
-        assertTrue(Boolean.FALSE.equals(exchange.getBook().getAvailable()));
-        assertTrue(Boolean.FALSE.equals(exchange.getOfferedBook().getAvailable()));
+        assertEquals("COMPLETED", response.getStatus());
+        assertTrue(Boolean.TRUE.equals(exchange.getBook().getAvailable()));
+        assertTrue(Boolean.TRUE.equals(exchange.getOfferedBook().getAvailable()));
+        assertEquals(requester.getId(), exchange.getBook().getOwner().getId());
+        assertEquals(owner.getId(), exchange.getOfferedBook().getOwner().getId());
     }
 
     @Test
@@ -161,9 +170,6 @@ class ExchangeRequestServiceTest {
         ExchangeStatusUpdateRequest request = new ExchangeStatusUpdateRequest();
         request.setStatus("DONE");
 
-        when(exchangeRequestRepository.findById(104L)).thenReturn(Optional.of(exchange));
-        when(userService.isModerator()).thenReturn(true);
-
         assertThrows(UnauthorizedActionException.class,
             () -> exchangeRequestService.updateRequestStatus(104L, request));
     }
@@ -199,6 +205,7 @@ class ExchangeRequestServiceTest {
         ExchangeRequest request = new ExchangeRequest();
         request.setId(id);
         request.setRequester(requester);
+        request.setOwner(owner);
         request.setBook(book(id + 10, owner, true));
         request.setOfferedBook(book(id + 20, requester, true));
         request.setStatus(status);

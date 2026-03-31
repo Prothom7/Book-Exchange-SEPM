@@ -1,0 +1,252 @@
+.page-banner {
+  padding: 3rem 0;
+  background: linear-gradient(135deg, var(--pastel-header) 0%, #e8f3ff 100%);
+}
+
+.page-banner h2 {
+  margin: 0;
+  color: #344174;
+}
+
+.page-banner p {
+  margin: 0.35rem 0 0;
+}
+
+.chat-workspace {
+  padding: 2rem 0 3rem;
+  background: var(--pastel-page);
+}
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(270px, 340px) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.panel {
+  background: var(--pastel-navbar-active);
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  box-shadow: 0 8px 24px rgba(63, 79, 124, 0.08);
+}
+
+.chat-sidebar h3,
+.chat-main h3 {
+  margin-bottom: 0.7rem;
+  color: #2f3a67;
+}
+
+.start-chat-form {
+  margin-bottom: 0.95rem;
+}
+
+.start-chat-form label,
+.chat-send-form label {
+  display: block;
+  margin-bottom: 0.42rem;
+  font-weight: 600;
+  color: #4a5580;
+}
+
+.start-row,
+.send-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.start-chat-form input,
+.chat-send-form textarea {
+  width: 100%;
+  border: 1px solid var(--pastel-navbar-hover);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  background: var(--pastel-page);
+}
+
+.chat-send-form textarea {
+  resize: vertical;
+  min-height: 58px;
+  max-height: 150px;
+}
+
+.start-chat-form button,
+.chat-send-form button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.56rem 0.88rem;
+  background: var(--pastel-navbar);
+  color: #2e3560;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.user-suggestions {
+  margin-top: 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  min-height: 1.4rem;
+}
+
+.user-chip {
+  border: none;
+  border-radius: 999px;
+  padding: 0.28rem 0.58rem;
+  background: #e4ecff;
+  color: #304675;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.conversation-list {
+  display: grid;
+  gap: 0.5rem;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.conversation-item {
+  border: 1px solid #d8e1f7;
+  background: #fcfdff;
+  border-radius: 12px;
+  padding: 0.6rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.conversation-item.active {
+  background: #eaf0ff;
+  border-color: #b9c8eb;
+}
+
+.conversation-item h4 {
+  margin: 0;
+  font-size: 0.96rem;
+  color: #2f3d6f;
+}
+
+.conversation-item p {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: #5a6685;
+}
+
+.chat-main {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 620px;
+}
+
+.chat-head {
+  border-bottom: 1px solid #e4e9f8;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.connection-state {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #596888;
+}
+
+.connection-state.good {
+  color: #2d7552;
+}
+
+.connection-state.warn {
+  color: #8c5d26;
+}
+
+.chat-message-list {
+  overflow-y: auto;
+  padding: 0.25rem 0.1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.chat-placeholder {
+  margin-top: 0.6rem;
+}
+
+.chat-bubble {
+  max-width: min(80%, 560px);
+  border-radius: 14px;
+  padding: 0.58rem 0.75rem;
+  border: 1px solid #d8e1f7;
+  background: #f6f9ff;
+}
+
+.chat-bubble.sent {
+  margin-left: auto;
+  background: #dfe9ff;
+  border-color: #bed0fa;
+}
+
+.chat-bubble.received {
+  margin-right: auto;
+  background: #f9fbff;
+}
+
+.chat-bubble p {
+  margin: 0;
+  color: #2e3a62;
+}
+
+.chat-bubble time {
+  display: block;
+  margin-top: 0.22rem;
+  font-size: 0.75rem;
+  color: #6a7796;
+}
+
+.delivery-hint {
+  margin-top: 0.1rem;
+  font-size: 0.74rem;
+  color: #8c5d26;
+}
+
+.chat-send-form {
+  margin-top: 0.8rem;
+  border-top: 1px solid #e4e9f8;
+  padding-top: 0.7rem;
+}
+
+.chat-status {
+  min-height: 1.2rem;
+  margin: 0.35rem 0 0;
+}
+
+.chat-status.error {
+  color: #8a2b2b;
+}
+
+.chat-status.success {
+  color: #2e6f4f;
+}
+
+@media (max-width: 980px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-main {
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 640px) {
+  .start-row,
+  .send-row {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-bubble {
+    max-width: 92%;
+  }
+}

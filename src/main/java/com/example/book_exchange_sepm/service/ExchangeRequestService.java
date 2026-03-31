@@ -28,9 +28,13 @@ public class ExchangeRequestService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ChatRoomService chatRoomService;
+
     /**
      * Create exchange request (USER+ roles)
      * User requests to exchange a book from another user
+     * Automatically creates a chat room for this exchange
      */
     @Transactional
     public ExchangeRequestResponse createExchangeRequest(ExchangeRequestRequest request) {
@@ -59,14 +63,37 @@ public class ExchangeRequestService {
             throw new UnauthorizedActionException("Requested and offered book cannot be the same");
         }
 
+        if (exchangeRequestRepository.existsByRequester_IdAndBook_IdAndOfferedBook_IdAndStatus(
+                requester.getId(),
+                requestedBook.getId(),
+                offeredBook.getId(),
+                ExchangeRequest.Status.PENDING)) {
+            throw new UnauthorizedActionException("You already have a pending request with this offered book");
+        }
+
+        if (exchangeRequestRepository.existsByRequester_IdAndBook_IdAndStatus(
+                requester.getId(),
+                requestedBook.getId(),
+                ExchangeRequest.Status.PENDING)) {
+            throw new UnauthorizedActionException("You already have a pending request for this book");
+        }
+
         ExchangeRequest exchangeRequest = new ExchangeRequest();
         exchangeRequest.setRequester(requester);
+        exchangeRequest.setOwner(requestedBook.getOwner());
         exchangeRequest.setBook(requestedBook);
         exchangeRequest.setOfferedBook(offeredBook);
         exchangeRequest.setMessage(request.getMessage());
         exchangeRequest.setStatus(ExchangeRequest.Status.PENDING);
+        exchangeRequest.setRequesterAcceptedAt(java.time.LocalDateTime.now());
 
         ExchangeRequest savedRequest = exchangeRequestRepository.save(exchangeRequest);
+        
+        // Auto-create chat room for this exchange
+        if (chatRoomService != null) {
+            chatRoomService.createChatRoomForExchange(savedRequest);
+        }
+        
         return convertToResponse(savedRequest);
     }
 
@@ -77,7 +104,7 @@ public class ExchangeRequestService {
     @Transactional(readOnly = true)
     public List<ExchangeRequestResponse> getMyBookExchangeRequests() {
         Long currentUserId = userService.getCurrentUserId();
-        return exchangeRequestRepository.findByBookOwner_Id(currentUserId).stream()
+        return exchangeRequestRepository.findByOwner_IdOrderByCreatedAtDesc(currentUserId).stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
@@ -88,7 +115,7 @@ public class ExchangeRequestService {
     @Transactional(readOnly = true)
     public List<ExchangeRequestResponse> getMyExchangeRequests() {
         Long currentUserId = userService.getCurrentUserId();
-        return exchangeRequestRepository.findByRequester_Id(currentUserId).stream()
+        return exchangeRequestRepository.findByRequester_IdOrderByCreatedAtDesc(currentUserId).stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
     }
@@ -100,9 +127,42 @@ public class ExchangeRequestService {
     public List<ExchangeRequestResponse> getPendingRequestsForModeration() {
         validateModeratorOrAdmin();
 
-        return exchangeRequestRepository.findByStatusOrderByCreatedAtDesc(ExchangeRequest.Status.PENDING).stream()
+        return exchangeRequestRepository
+            .findByStatusAndRequesterAcceptedAtNotNullAndOwnerAcceptedAtNotNullOrderByCreatedAtDesc(ExchangeRequest.Status.PENDING)
+            .stream()
             .map(this::convertToResponse)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Participant acceptance stage.
+     * Only requester or owner can accept a pending exchange.
+     */
+    @Transactional
+    public ExchangeRequestResponse acceptExchangeRequest(Long exchangeRequestId) {
+        ExchangeRequest exchangeRequest = findExchangeRequestById(exchangeRequestId);
+
+        if (exchangeRequest.getStatus() != ExchangeRequest.Status.PENDING) {
+            throw new UnauthorizedActionException("Only pending requests can be accepted by participants");
+        }
+
+        User currentUser = userService.getCurrentUserEntity();
+        Long currentUserId = currentUser.getId();
+
+        if (exchangeRequest.getRequester().getId().equals(currentUserId)) {
+            if (exchangeRequest.getRequesterAcceptedAt() == null) {
+                exchangeRequest.setRequesterAcceptedAt(java.time.LocalDateTime.now());
+            }
+        } else if (resolveOwner(exchangeRequest).getId().equals(currentUserId)) {
+            if (exchangeRequest.getOwnerAcceptedAt() == null) {
+                exchangeRequest.setOwnerAcceptedAt(java.time.LocalDateTime.now());
+            }
+        } else {
+            throw new UnauthorizedActionException("Only exchange participants can accept this exchange");
+        }
+
+        ExchangeRequest updated = exchangeRequestRepository.save(exchangeRequest);
+        return convertToResponse(updated);
     }
 
     /**
@@ -112,21 +172,48 @@ public class ExchangeRequestService {
     @Transactional
     public ExchangeRequestResponse approveExchangeRequest(Long exchangeRequestId) {
         ExchangeRequest exchangeRequest = findExchangeRequestById(exchangeRequestId);
-        validateModeratorOrAdmin();
+        validateModeratorOnly();
+        validatePendingOwnershipMapping(exchangeRequest);
 
         if (exchangeRequest.getStatus() != ExchangeRequest.Status.PENDING) {
             throw new UnauthorizedActionException("Only pending requests can be approved");
         }
 
+        if (exchangeRequest.getRequesterAcceptedAt() == null || exchangeRequest.getOwnerAcceptedAt() == null) {
+            throw new UnauthorizedActionException("Both participants must accept before moderator approval");
+        }
+
         User reviewer = userService.getCurrentUserEntity();
 
-        exchangeRequest.setStatus(ExchangeRequest.Status.APPROVED);
+        // Final moderator approval triggers the ownership transfer atomically.
+        Book requestedBook = exchangeRequest.getBook();
+        Book offeredBook = exchangeRequest.getOfferedBook();
+        User requester = exchangeRequest.getRequester();
+        User originalOwner = resolveOwner(exchangeRequest);
+
+        if (!requestedBook.getOwner().getId().equals(originalOwner.getId())) {
+            throw new UnauthorizedActionException("Requested book owner changed. Refresh and retry flow.");
+        }
+        if (!offeredBook.getOwner().getId().equals(requester.getId())) {
+            throw new UnauthorizedActionException("Offered book owner changed. Refresh and retry flow.");
+        }
+
+        requestedBook.setOwner(requester);
+        offeredBook.setOwner(originalOwner);
+        requestedBook.setAvailable(true);
+        offeredBook.setAvailable(true);
+
+        bookService.updateBook(requestedBook);
+        bookService.updateBook(offeredBook);
+
+        exchangeRequest.setStatus(ExchangeRequest.Status.COMPLETED);
         exchangeRequest.setReviewedBy(reviewer);
         exchangeRequest.setReviewedAt(java.time.LocalDateTime.now());
-        exchangeRequest.setModeratorComment("Approved by moderator");
+        exchangeRequest.setCompletedAt(java.time.LocalDateTime.now());
+        exchangeRequest.setModeratorComment("Approved by moderator and completed with ownership transfer");
 
-        exchangeRequest.getBook().setAvailable(false);
-        exchangeRequest.getOfferedBook().setAvailable(false);
+        cancelConflictingPendingRequests(exchangeRequest);
+        chatRoomService.getChatRoomForExchange(exchangeRequestId);
 
         ExchangeRequest updatedRequest = exchangeRequestRepository.save(exchangeRequest);
         return convertToResponse(updatedRequest);
@@ -139,7 +226,7 @@ public class ExchangeRequestService {
     @Transactional
     public ExchangeRequestResponse rejectExchangeRequest(Long exchangeRequestId) {
         ExchangeRequest exchangeRequest = findExchangeRequestById(exchangeRequestId);
-        validateModeratorOrAdmin();
+        validateModeratorOnly();
 
         if (exchangeRequest.getStatus() != ExchangeRequest.Status.PENDING) {
             throw new UnauthorizedActionException("Only pending requests can be rejected");
@@ -151,6 +238,8 @@ public class ExchangeRequestService {
         exchangeRequest.setReviewedBy(reviewer);
         exchangeRequest.setReviewedAt(java.time.LocalDateTime.now());
         exchangeRequest.setModeratorComment("Rejected by moderator");
+
+        chatRoomService.getChatRoomForExchange(exchangeRequestId);
 
         ExchangeRequest updatedRequest = exchangeRequestRepository.save(exchangeRequest);
         return convertToResponse(updatedRequest);
@@ -184,37 +273,28 @@ public class ExchangeRequestService {
      */
     @Transactional
     public ExchangeRequestResponse updateRequestStatus(Long exchangeRequestId, ExchangeStatusUpdateRequest request) {
-        ExchangeRequest exchangeRequest = findExchangeRequestById(exchangeRequestId);
-        validateModeratorOrAdmin();
-
         String status = request.getStatus().toUpperCase();
 
         if ("APPROVED".equals(status)) {
-            if (exchangeRequest.getStatus() != ExchangeRequest.Status.PENDING) {
-                throw new UnauthorizedActionException("Only pending requests can be approved");
-            }
-            User reviewer = userService.getCurrentUserEntity();
-            exchangeRequest.setStatus(ExchangeRequest.Status.APPROVED);
-            exchangeRequest.setReviewedBy(reviewer);
-            exchangeRequest.setReviewedAt(java.time.LocalDateTime.now());
-            exchangeRequest.setModeratorComment(request.getModeratorComment() != null ? request.getModeratorComment() : "Approved by moderator");
-            exchangeRequest.getBook().setAvailable(false);
-            exchangeRequest.getOfferedBook().setAvailable(false);
-        } else if ("REJECTED".equals(status)) {
-            if (exchangeRequest.getStatus() != ExchangeRequest.Status.PENDING) {
-                throw new UnauthorizedActionException("Only pending requests can be rejected");
-            }
-            User reviewer = userService.getCurrentUserEntity();
-            exchangeRequest.setStatus(ExchangeRequest.Status.REJECTED);
-            exchangeRequest.setReviewedBy(reviewer);
-            exchangeRequest.setReviewedAt(java.time.LocalDateTime.now());
-            exchangeRequest.setModeratorComment(request.getModeratorComment() != null ? request.getModeratorComment() : "Rejected by moderator");
-        } else {
-            throw new UnauthorizedActionException("Invalid status. Must be APPROVED or REJECTED");
+            return approveExchangeRequest(exchangeRequestId);
         }
 
-        ExchangeRequest updatedRequest = exchangeRequestRepository.save(exchangeRequest);
-        return convertToResponse(updatedRequest);
+        if ("REJECTED".equals(status)) {
+            return rejectExchangeRequest(exchangeRequestId);
+        }
+
+        throw new UnauthorizedActionException("Invalid status. Must be APPROVED or REJECTED");
+    }
+
+    /**
+     * CRITICAL: Complete an exchange and transfer ownership
+     * Only the requester/book owner can confirm completion
+     * Transfers ownership of both books and marks them available
+     * Flow: PENDING -> APPROVED -> COMPLETED (books transfer ownership)
+     */
+    @Transactional
+    public ExchangeRequestResponse completeExchangeRequest(Long exchangeRequestId) {
+        throw new UnauthorizedActionException("Manual completion is disabled. Ownership transfer happens only after moderator approval.");
     }
 
     /**
@@ -222,7 +302,14 @@ public class ExchangeRequestService {
      */
     @Transactional(readOnly = true)
     public ExchangeRequestResponse getExchangeRequestById(Long exchangeRequestId) {
-        ExchangeRequest exchangeRequest = findExchangeRequestById(exchangeRequestId);
+        ExchangeRequest exchangeRequest;
+        if (userService.isAdmin() || userService.isModerator()) {
+            exchangeRequest = findExchangeRequestById(exchangeRequestId);
+        } else {
+            Long currentUserId = userService.getCurrentUserId();
+            exchangeRequest = exchangeRequestRepository.findVisibleByIdForUser(exchangeRequestId, currentUserId)
+                .orElseThrow(() -> new UnauthorizedActionException("You are not allowed to view this exchange request"));
+        }
         return convertToResponse(exchangeRequest);
     }
 
@@ -245,10 +332,14 @@ public class ExchangeRequestService {
             exchangeRequest.getRequester().getUsername(),
             exchangeRequest.getBook().getId(),
             exchangeRequest.getBook().getTitle(),
-            exchangeRequest.getBook().getOwner().getId(),
-            exchangeRequest.getBook().getOwner().getUsername(),
+            resolveBookImageUrl(exchangeRequest.getBook().getImageUrl(), exchangeRequest.getBook().getIsbn(), exchangeRequest.getBook().getTitle()),
+            resolveOwner(exchangeRequest).getId(),
+            resolveOwner(exchangeRequest).getUsername(),
             exchangeRequest.getOfferedBook() != null ? exchangeRequest.getOfferedBook().getId() : null,
             exchangeRequest.getOfferedBook() != null ? exchangeRequest.getOfferedBook().getTitle() : null,
+            exchangeRequest.getOfferedBook() != null
+                ? resolveBookImageUrl(exchangeRequest.getOfferedBook().getImageUrl(), exchangeRequest.getOfferedBook().getIsbn(), exchangeRequest.getOfferedBook().getTitle())
+                : null,
             exchangeRequest.getStatus().toString(),
             exchangeRequest.getMessage(),
             exchangeRequest.getModeratorComment(),
@@ -256,13 +347,86 @@ public class ExchangeRequestService {
             exchangeRequest.getReviewedBy() != null ? exchangeRequest.getReviewedBy().getUsername() : null,
             exchangeRequest.getReviewedAt(),
             exchangeRequest.getCreatedAt(),
-            exchangeRequest.getUpdatedAt()
+            exchangeRequest.getUpdatedAt(),
+            exchangeRequest.getCompletedAt(),
+            exchangeRequest.getRequesterAcceptedAt(),
+            exchangeRequest.getOwnerAcceptedAt()
         );
+    }
+
+    private String resolveBookImageUrl(String imageUrl, String isbn, String title) {
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            return imageUrl;
+        }
+
+        if (isbn != null && !isbn.isBlank()) {
+            return "https://covers.openlibrary.org/b/isbn/" + isbn.trim() + "-M.jpg?default=false";
+        }
+
+        String safeTitle = (title == null || title.isBlank()) ? "Book" : title.trim().replace(" ", "+");
+        return "https://placehold.co/260x380/eef2ff/334155?text=" + safeTitle;
     }
 
     private void validateModeratorOrAdmin() {
         if (!userService.isModerator() && !userService.isAdmin()) {
             throw new UnauthorizedActionException("Only moderators or admins can review exchange requests");
         }
+    }
+
+    private void validateModeratorOnly() {
+        if (!userService.isModerator()) {
+            throw new UnauthorizedActionException("Only moderators can approve or reject final exchanges");
+        }
+    }
+
+    private void validateCanReviewRequest(ExchangeRequest exchangeRequest) {
+        User currentUser = userService.getCurrentUserEntity();
+        Long currentUserId = currentUser.getId();
+        Long ownerId = resolveOwner(exchangeRequest).getId();
+
+        boolean moderatorOrAdmin = userService.isModerator() || userService.isAdmin();
+        if (moderatorOrAdmin || ownerId.equals(currentUserId)) {
+            return;
+        }
+
+        throw new UnauthorizedActionException("Only the book owner, moderator, or admin can review this request");
+    }
+
+    private void validatePendingOwnershipMapping(ExchangeRequest exchangeRequest) {
+        User owner = resolveOwner(exchangeRequest);
+
+        if (!exchangeRequest.getBook().getOwner().getId().equals(owner.getId())) {
+            throw new UnauthorizedActionException("Requested book owner no longer matches exchange owner.");
+        }
+
+        if (!exchangeRequest.getOfferedBook().getOwner().getId().equals(exchangeRequest.getRequester().getId())) {
+            throw new UnauthorizedActionException("Offered book is no longer owned by requester.");
+        }
+    }
+
+    private void cancelConflictingPendingRequests(ExchangeRequest approvedExchange) {
+        List<ExchangeRequest> conflicts = exchangeRequestRepository.findConflictingPendingRequests(
+            approvedExchange.getId(),
+            approvedExchange.getBook().getId(),
+            approvedExchange.getOfferedBook().getId()
+        );
+
+        for (ExchangeRequest conflict : conflicts) {
+            conflict.setStatus(ExchangeRequest.Status.CANCELLED);
+            conflict.setModeratorComment("Auto-cancelled because one of the books is already in an approved exchange.");
+            exchangeRequestRepository.save(conflict);
+        }
+    }
+
+    private User resolveOwner(ExchangeRequest exchangeRequest) {
+        if (exchangeRequest.getOwner() != null) {
+            return exchangeRequest.getOwner();
+        }
+
+        if (exchangeRequest.getBook() != null && exchangeRequest.getBook().getOwner() != null) {
+            return exchangeRequest.getBook().getOwner();
+        }
+
+        throw new UnauthorizedActionException("Exchange request owner is missing. Please recreate request.");
     }
 }

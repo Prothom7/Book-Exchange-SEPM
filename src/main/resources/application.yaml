@@ -1,56 +1,14 @@
 spring:
   application:
     name: Book_Exchange_SEPM
-
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:bookexchange;DB_CLOSE_DELAY=-1;MODE=PostgreSQL}
-    username: ${SPRING_DATASOURCE_USERNAME:sa}
-    password: ${SPRING_DATASOURCE_PASSWORD:}
-    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
-
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/book_exchange}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
-    properties:
-      hibernate:
-        dialect: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
-    show-sql: false
-
-  h2:
-    console:
-      enabled: true
-
-  mail:
-    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
-    port: ${SPRING_MAIL_PORT:587}
-    username: ${SPRING_MAIL_USERNAME:noreply@bookexchange.com}
-    password: ${SPRING_MAIL_PASSWORD:password}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: false
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
-    test-connection: false
-    default-encoding: UTF-8
 
 server:
-  port: ${SERVER_PORT:8080}
-  error:
-    include-message: always
-    include-binding-errors: always
-
-logging:
-  level:
-    com.example.book_exchange_sepm: INFO
-
-jwt:
-  secret: ${JWT_SECRET:MySecretKeyForJWTTokenGenerationAndValidationShouldBeAtLeast256BitsLong}
-  expiration: ${JWT_EXPIRATION:86400000}
-
-app:
-  base-url: ${APP_BASE_URL:http://localhost:8080}
+  port: ${SERVER_PORT:8081}

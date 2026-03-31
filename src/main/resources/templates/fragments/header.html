@@ -9,8 +9,9 @@
       <ul>
         <li th:each="item : ${navItems}">
           <a th:href="@{${item.path}}"
-             th:text="${item.label}"
-             th:classappend="${item.path == activePath} ? 'active' : ''">Menu</a>
+             th:classappend="${item.path == activePath} ? 'active' : ''">
+            <span th:text="${item.label}">Menu</span>
+          </a>
         </li>
       </ul>
     </nav>
