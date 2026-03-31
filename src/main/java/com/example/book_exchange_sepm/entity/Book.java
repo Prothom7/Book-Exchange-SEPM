@@ -41,9 +41,6 @@ public class Book {
     @Column(nullable = false, length = 1000)
     private String description;
 
-    @Column
-    private String imageUrl;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

@@ -11,13 +11,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.http.HttpStatus;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -52,18 +49,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        RequestMatcher apiMatcher = request -> request.getRequestURI() != null
-            && request.getRequestURI().startsWith("/api/");
-
         http
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error", "/landingpage").permitAll()
+                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/ws/**").permitAll()
-                .requestMatchers("/ws-chat/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
 
                 // Public authentication APIs
@@ -71,23 +63,17 @@ public class SecurityConfig {
 
                 // Role-specific APIs
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/moderator/**").hasRole("MODERATOR")
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**", "/api/exchange/**", "/api/wishlist/**", "/api/notifications/**")
+                .requestMatchers("/api/moderator/**").hasAnyRole("MODERATOR", "ADMIN")
+                .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**")
                 .hasAnyRole("USER", "MODERATOR", "ADMIN")
 
-                // REST API endpoints
-                .requestMatchers("/api/books-rest", "/api/books-rest/**").authenticated()
-                .requestMatchers("/api/exchange-rest", "/api/exchange-rest/**").authenticated()
-                .requestMatchers("/api/wishlist-rest", "/api/wishlist-rest/**").authenticated()
-
-                // All other app pages and requests require authentication
+                // App pages require authentication (including /, /landingpage, /browse)
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .successHandler(roleBasedAuthenticationSuccessHandler)
-                .failureForwardUrl("/login-failure")
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
@@ -95,17 +81,7 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             )
-            .exceptionHandling(ex -> ex
-                .defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    apiMatcher
-                )
-                .defaultAccessDeniedHandlerFor(
-                    (request, response, accessDeniedException) -> response.sendError(HttpStatus.FORBIDDEN.value(), accessDeniedException.getMessage()),
-                    apiMatcher
-                )
-                .accessDeniedPage("/access-denied")
-            )
+            .exceptionHandling(ex -> ex.accessDeniedPage("/access-denied"))
             .httpBasic(withDefaults())
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

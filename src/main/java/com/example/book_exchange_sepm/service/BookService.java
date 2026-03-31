@@ -5,13 +5,8 @@ import com.example.book_exchange_sepm.dto.BookRequest;
 import com.example.book_exchange_sepm.dto.BookResponse;
 import com.example.book_exchange_sepm.entity.Book;
 import com.example.book_exchange_sepm.entity.User;
-import com.example.book_exchange_sepm.event.BookAvailableEvent;
 import com.example.book_exchange_sepm.exception.ResourceNotFoundException;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
-import com.example.book_exchange_sepm.pattern.singleton.BookEventManager;
-import com.example.book_exchange_sepm.pattern.strategy.BookSearchStrategy;
-import com.example.book_exchange_sepm.pattern.strategy.BookSearchStrategyResolver;
-import com.example.book_exchange_sepm.pattern.strategy.SearchMode;
 import com.example.book_exchange_sepm.repository.BookRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +21,10 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final UserService userService;
-    private final BookSearchStrategyResolver strategyResolver;
 
-    public BookService(BookRepository bookRepository,
-                       UserService userService,
-                       BookSearchStrategyResolver strategyResolver) {
+    public BookService(BookRepository bookRepository, UserService userService) {
         this.bookRepository = bookRepository;
         this.userService = userService;
-        this.strategyResolver = strategyResolver;
     }
 
     @Transactional(readOnly = true)
@@ -50,7 +41,6 @@ public class BookService {
         boolean availableOnly = searchForm.isAvailableOnly();
 
         Stream<Book> stream = bookRepository.findAllByOrderByTitleAsc().stream();
-        stream = stream.filter(book -> Boolean.TRUE.equals(book.getAvailable()));
 
         if (keyword != null) {
             stream = stream.filter(book -> containsIgnoreCase(book.getTitle(), keyword)
@@ -100,21 +90,6 @@ public class BookService {
         return bookRepository.findDistinctLanguages();
     }
 
-    @Transactional(readOnly = true)
-    public List<BookResponse> searchAvailableBooks(String query, SearchMode searchMode) {
-        if (query == null || query.isBlank()) {
-            return getAvailableBooks();
-        }
-
-        BookSearchStrategy strategy = strategyResolver.resolve(searchMode == null ? SearchMode.KEYWORD : searchMode);
-        String normalizedQuery = query.trim();
-
-        return bookRepository.findByAvailableTrue().stream()
-            .filter(book -> strategy.matches(book, normalizedQuery))
-            .map(this::convertToResponse)
-            .collect(Collectors.toList());
-    }
-
     @Transactional
     public BookResponse createBook(BookRequest request) {
         User currentUser = userService.getCurrentUserEntity();
@@ -125,7 +100,6 @@ public class BookService {
         book.setAvailable(true);
 
         Book savedBook = bookRepository.save(book);
-        publishBookAvailableEvent(savedBook);
         return convertToResponse(savedBook);
     }
 
@@ -192,16 +166,8 @@ public class BookService {
     public BookResponse markBookAvailability(Long bookId, Boolean available) {
         Book book = findBookById(bookId);
         userService.validateOwnershipOrAdmin(book.getOwner().getId());
-
-        boolean wasAvailable = Boolean.TRUE.equals(book.getAvailable());
         book.setAvailable(available);
-        Book updatedBook = bookRepository.save(book);
-
-        if (!wasAvailable && Boolean.TRUE.equals(available)) {
-            publishBookAvailableEvent(updatedBook);
-        }
-
-        return convertToResponse(updatedBook);
+        return convertToResponse(bookRepository.save(book));
     }
 
     @Transactional(readOnly = true)
@@ -213,16 +179,7 @@ public class BookService {
     private void applyBookRequest(Book book, BookRequest request) {
         book.setTitle(request.getTitle());
         book.setAuthor(request.getAuthor());
-        book.setGenre(request.getGenre());
         book.setDescription(request.getDescription());
-        String imageUrl = request.getImageUrl();
-        if (imageUrl == null || imageUrl.isBlank()) {
-            String isbn = request.getIsbn();
-            if (isbn != null && !isbn.isBlank()) {
-                imageUrl = "https://covers.openlibrary.org/b/isbn/" + isbn.trim() + "-M.jpg?default=false";
-            }
-        }
-        book.setImageUrl(imageUrl);
         book.setIsbn(request.getIsbn());
         book.setBookCondition(request.getCondition());
 
@@ -238,14 +195,11 @@ public class BookService {
     }
 
     private BookResponse convertToResponse(Book book) {
-        String resolvedImageUrl = resolveBookImageUrl(book);
         return new BookResponse(
             book.getId(),
             book.getTitle(),
             book.getAuthor(),
-            book.getGenre(),
             book.getDescription(),
-            resolvedImageUrl,
             book.getIsbn(),
             book.getOwner() != null ? book.getOwner().getId() : null,
             book.getOwner() != null ? book.getOwner().getUsername() : null,
@@ -254,22 +208,6 @@ public class BookService {
             book.getCreatedAt(),
             book.getUpdatedAt()
         );
-    }
-
-    private String resolveBookImageUrl(Book book) {
-        if (book.getImageUrl() != null && !book.getImageUrl().isBlank()) {
-            return book.getImageUrl();
-        }
-
-        if (book.getIsbn() != null && !book.getIsbn().isBlank()) {
-            return "https://covers.openlibrary.org/b/isbn/" + book.getIsbn().trim() + "-M.jpg?default=false";
-        }
-
-        String titleText = (book.getTitle() == null || book.getTitle().isBlank())
-            ? "Book"
-            : book.getTitle().trim().replace(" ", "+");
-
-        return "https://placehold.co/260x380/eef2ff/334155?text=" + titleText;
     }
 
     private String normalize(String value) {
@@ -291,27 +229,5 @@ public class BookService {
             return false;
         }
         return left.equalsIgnoreCase(right);
-    }
-
-    private void publishBookAvailableEvent(Book book) {
-        if (!Boolean.TRUE.equals(book.getAvailable())) {
-            return;
-        }
-
-        BookEventManager.getInstance().publish(new BookAvailableEvent(
-            book.getId(),
-            book.getTitle(),
-            book.getAuthor(),
-            book.getGenre()
-        ));
-    }
-
-    /**
-     * Direct book entity save for ownership transfers and internal operations
-     * Used by exchange service for ownership transfer without needing BookRequest DTO
-     */
-    @Transactional
-    public Book updateBook(Book book) {
-        return bookRepository.save(book);
     }
 }
