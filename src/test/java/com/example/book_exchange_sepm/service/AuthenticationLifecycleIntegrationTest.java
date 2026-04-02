@@ -5,6 +5,8 @@ import com.example.book_exchange_sepm.dto.RegisterRequest;
 import com.example.book_exchange_sepm.entity.Role;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.repository.BookRepository;
+import com.example.book_exchange_sepm.repository.ChatMessageRepository;
+import com.example.book_exchange_sepm.repository.ChatRoomRepository;
 import com.example.book_exchange_sepm.repository.ExchangeRequestRepository;
 import com.example.book_exchange_sepm.repository.RoleRepository;
 import com.example.book_exchange_sepm.repository.UserNotificationRepository;
@@ -42,6 +44,12 @@ class AuthenticationLifecycleIntegrationTest {
     private ExchangeRequestRepository exchangeRequestRepository;
 
     @Autowired
+    private ChatRoomRepository chatRoomRepository;
+
+    @Autowired
+    private ChatMessageRepository chatMessageRepository;
+
+    @Autowired
     private WishlistSubscriptionRepository wishlistSubscriptionRepository;
 
     @Autowired
@@ -52,6 +60,8 @@ class AuthenticationLifecycleIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        chatMessageRepository.deleteAll();
+        chatRoomRepository.deleteAll();
         exchangeRequestRepository.deleteAll();
         userNotificationRepository.deleteAll();
         wishlistSubscriptionRepository.deleteAll();
