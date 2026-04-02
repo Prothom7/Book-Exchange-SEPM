@@ -80,7 +80,7 @@ public class ComprehensiveDataSeeder {
      */
     private Map<String, Role> initializeRoles(RoleRepository roleRepository) {
         Map<String, Role> roleMap = new HashMap<>();
-        String[] roleNames = {"ROLE_USER", "ROLE_MODERATOR", "ROLE_ADMIN"};
+        String[] roleNames = {"ROLE_USER", "ROLE_MODERATOR", "ROLE_ADMIN", "ROLE_DELIVERY_MAN"};
 
         for (String roleName : roleNames) {
             Role role = roleRepository.findByName(roleName)
@@ -99,6 +99,12 @@ public class ComprehensiveDataSeeder {
         // Admin user
         users.add(createUser("admin", "admin@example.com", "admin123", true, 
             Collections.singleton(roles.get("ROLE_ADMIN")), userRepository));
+
+        // Delivery users
+        users.add(createUser("delivery_one", "delivery.one@example.com", "password123", true,
+            Collections.singleton(roles.get("ROLE_DELIVERY_MAN")), userRepository));
+        users.add(createUser("delivery_two", "delivery.two@example.com", "password123", true,
+            Collections.singleton(roles.get("ROLE_DELIVERY_MAN")), userRepository));
 
         // Moderators
         users.add(createUser("john_mod", "john.mod@example.com", "password123", true,

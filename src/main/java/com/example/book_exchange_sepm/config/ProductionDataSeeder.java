@@ -79,7 +79,7 @@ public class ProductionDataSeeder {
      * Ensure a realistic user base exists (10-20 users)
      */
     private List<User> ensureUsers(UserRepository userRepository, RoleRepository roleRepository) {
-        String[] roleNames = {"ROLE_ADMIN", "ROLE_MODERATOR", "ROLE_USER"};
+        String[] roleNames = {"ROLE_ADMIN", "ROLE_DELIVERY_MAN", "ROLE_MODERATOR", "ROLE_USER"};
         Map<String, Role> roles = new HashMap<>();
 
         for (String roleName : roleNames) {
@@ -89,6 +89,8 @@ public class ProductionDataSeeder {
         }
 
         createUserIfMissing(userRepository, "admin", "admin@example.com", "admin123", roles.get("ROLE_ADMIN"));
+        createUserIfMissing(userRepository, "david_delivery", "david.delivery@example.com", "password123", roles.get("ROLE_DELIVERY_MAN"));
+        createUserIfMissing(userRepository, "nina_delivery", "nina.delivery@example.com", "password123", roles.get("ROLE_DELIVERY_MAN"));
         createUserIfMissing(userRepository, "john_mod", "john.mod@example.com", "password123", roles.get("ROLE_MODERATOR"));
         createUserIfMissing(userRepository, "sarah_mod", "sarah.mod@example.com", "password123", roles.get("ROLE_MODERATOR"));
 

@@ -19,10 +19,14 @@ public class BookSeeder {
         return args -> {
             Role adminRole = roleRepository.findByName("ROLE_ADMIN")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_ADMIN")));
+            Role deliveryRole = roleRepository.findByName("ROLE_DELIVERY_MAN")
+                .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_DELIVERY_MAN")));
             Role moderatorRole = roleRepository.findByName("ROLE_MODERATOR")
                 .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_MODERATOR")));
 
             ensureUser(userRepository, "admin", "admin@example.com", "admin123", adminRole);
+            ensureUser(userRepository, "deliveryman1", "delivery1@example.com", "delivery123", deliveryRole);
+            ensureUser(userRepository, "deliveryman2", "delivery2@example.com", "delivery123", deliveryRole);
             ensureUser(userRepository, "moderator", "moderator@example.com", "moderator123", moderatorRole);
         };
     }
