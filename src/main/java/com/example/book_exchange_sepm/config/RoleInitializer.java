@@ -16,6 +16,7 @@ public class RoleInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // Create roles if they don't exist
         createRoleIfNotFound("ROLE_ADMIN");
+        createRoleIfNotFound("ROLE_DELIVERY_MAN");
         createRoleIfNotFound("ROLE_MODERATOR");
         createRoleIfNotFound("ROLE_USER");
     }

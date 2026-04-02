@@ -161,6 +161,16 @@ public class UserService {
     }
 
     /**
+     * Check if current user is delivery man
+     */
+    @Transactional(readOnly = true)
+    public boolean isDeliveryMan() {
+        User currentUser = getCurrentUserEntity();
+        return currentUser.getRoles().stream()
+            .anyMatch(role -> role.getName().equals("ROLE_DELIVERY_MAN"));
+    }
+
+    /**
      * Check if current user has given role
      */
     @Transactional(readOnly = true)
@@ -168,6 +178,14 @@ public class UserService {
         User currentUser = getCurrentUserEntity();
         return currentUser.getRoles().stream()
             .anyMatch(role -> role.getName().equals(roleName));
+    }
+
+    /**
+     * Get all users who have the delivery man role.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<User> getDeliveryMen() {
+        return userRepository.findByRoles_Name("ROLE_DELIVERY_MAN");
     }
 
     /**
