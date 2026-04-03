@@ -313,6 +313,135 @@
   margin-bottom: 0.45rem;
 }
 
+.exchange-modal.hidden {
+  display: none;
+}
+
+.exchange-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+}
+
+.exchange-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 31, 49, 0.52);
+  backdrop-filter: blur(3px);
+}
+
+.exchange-modal-dialog {
+  position: relative;
+  width: min(100%, 560px);
+  background: linear-gradient(180deg, #fcfdff 0%, #f3f6ff 100%);
+  border: 1px solid #dbe3fb;
+  border-radius: 24px;
+  box-shadow: 0 28px 80px rgba(31, 41, 85, 0.25);
+  padding: 1.4rem;
+}
+
+.exchange-modal-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  border: none;
+  background: transparent;
+  color: #536182;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.exchange-modal-header {
+  margin-bottom: 1rem;
+}
+
+.exchange-modal-eyebrow {
+  margin: 0 0 0.35rem;
+  color: #5d68a2;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.exchange-modal-header h3 {
+  margin: 0;
+  color: #1e2a4e;
+  font-size: 1.45rem;
+}
+
+.exchange-modal-subtitle {
+  margin: 0.45rem 0 0;
+  color: #52607d;
+  line-height: 1.5;
+}
+
+.exchange-modal-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.exchange-modal-form label {
+  color: #24314f;
+  font-weight: 700;
+}
+
+.exchange-modal-form select,
+.exchange-modal-form textarea {
+  width: 100%;
+  border: 1px solid #cfd9f7;
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  font: inherit;
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.exchange-modal-form select:focus,
+.exchange-modal-form textarea:focus {
+  outline: 2px solid #9bb1ec;
+  outline-offset: 1px;
+  border-color: #9bb1ec;
+}
+
+.exchange-modal-status {
+  margin: 0;
+  min-height: 1.25rem;
+  color: #405171;
+  font-size: 0.92rem;
+}
+
+.exchange-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.exchange-primary-btn,
+.exchange-secondary-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.72rem 1.15rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exchange-primary-btn {
+  background: #dce7ff;
+  color: #2f4977;
+}
+
+.exchange-secondary-btn {
+  background: #eef2ff;
+  color: #55617d;
+}
+
 @media (max-width: 1100px) {
   .filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -347,5 +476,22 @@
 @media (max-width: 560px) {
   .books-grid {
     grid-template-columns: 1fr;
+  }
+
+  .exchange-modal {
+    padding: 0.8rem;
+  }
+
+  .exchange-modal-dialog {
+    padding: 1.1rem;
+  }
+
+  .exchange-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .exchange-primary-btn,
+  .exchange-secondary-btn {
+    width: 100%;
   }
 }

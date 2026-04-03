@@ -49,6 +49,10 @@
                 <div class="label">Moderators</div>
                 <div class="value" th:text="${moderatorCount ?: 0}">0</div>
             </div>
+            <div class="stat-mini">
+                <div class="label">Delivery Requests</div>
+                <div class="value" th:text="${pendingDeliveryRequests ?: 0}">0</div>
+            </div>
         </div>
         
         <!-- Search & Filter -->
@@ -64,6 +68,7 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Delivery Request</th>
                     <th>Email Status</th>
                     <th>Status</th>
                     <th>Books</th>
@@ -84,9 +89,16 @@
                     <td th:text="${user.email}">email@example.com</td>
                     <td>
                         <span class="badge" 
-                              th:classappend="${user.role == 'ADMIN' ? 'badge-admin' : user.role == 'MODERATOR' ? 'badge-moderator' : 'badge-user'}"
+                              th:classappend="${user.role == 'ADMIN' ? 'badge-admin' : user.role == 'MODERATOR' ? 'badge-moderator' : user.role == 'DELIVERY_MAN' ? 'badge-active' : 'badge-user'}"
                               th:text="${user.role}">
                             ROLE
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${user.deliveryRequestStatus == 'PENDING' ? 'badge-pending' : user.deliveryRequestStatus == 'APPROVED' ? 'badge-approved' : 'badge-inactive'}"
+                              th:text="${user.deliveryRequestStatus}">
+                            STATUS
                         </span>
                     </td>
                     <td>
@@ -119,6 +131,9 @@
                             </button>
                             <button class="action-btn btn-edit" th:if="${user.role == 'USER'}" th:onclick="|promoteUser(${user.id})|">
                                 <i class="bi bi-shield-check"></i> Promote
+                            </button>
+                            <button class="action-btn btn-view" th:if="${user.deliveryRequestStatus == 'PENDING'}" th:onclick="|approveDelivery(${user.id})|">
+                                <i class="bi bi-truck"></i> Approve Delivery
                             </button>
                         </div>
                     </td>
@@ -191,6 +206,26 @@
             } catch (error) {
                 console.error('Promote failed:', error);
                 alert('An unexpected error occurred while promoting the user.');
+            }
+        }
+
+        async function approveDelivery(userId) {
+            try {
+                const response = await fetch(`/admin/api/users/${userId}/approve-delivery`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert('User approved as delivery man successfully.');
+                    location.reload();
+                    return;
+                }
+
+                const errorText = await response.text();
+                alert(errorText || 'Failed to approve delivery request.');
+            } catch (error) {
+                console.error('Delivery approval failed:', error);
+                alert('An unexpected error occurred while approving the delivery request.');
             }
         }
     </script>

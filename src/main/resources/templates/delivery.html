@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${page.title}">Book Exchange | Delivery</title>
+  <link rel="stylesheet" th:href="@{/css/common.css}">
+  <link rel="stylesheet" th:href="@{/css/header.css}">
+  <link rel="stylesheet" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" th:href="@{/css/delivery.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: siteHeader(${navItems}, ${page.activePath})}"></th:block>
+
+  <main>
+    <section class="page-banner">
+      <div class="container">
+        <h2 th:text="${page.heading}">Assigned Deliveries</h2>
+        <p th:text="${page.description}">Track assigned deliveries and keep exchange handoffs moving.</p>
+      </div>
+    </section>
+
+    <section class="delivery-workspace">
+      <div class="container">
+        <article class="panel">
+          <div class="panel-head">
+            <h3>My Assigned Deliveries</h3>
+            <button id="refreshDeliveriesBtn" class="chip-btn" type="button">Refresh</button>
+          </div>
+          <div id="deliveryAssignmentsList" class="delivery-list"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
+  <script th:src="@{/js/delivery.js}" defer></script>
+</body>
+</html>

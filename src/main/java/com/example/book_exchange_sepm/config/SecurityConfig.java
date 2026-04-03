@@ -71,8 +71,10 @@ public class SecurityConfig {
 
                 // Role-specific APIs
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/delivery/**").hasRole("DELIVERY_MAN")
                 .requestMatchers("/api/moderator/**").hasRole("MODERATOR")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/delivery/**").hasRole("DELIVERY_MAN")
                 .requestMatchers("/api/user/**", "/api/books/**", "/api/exchange-requests/**", "/api/exchange/**", "/api/wishlist/**", "/api/notifications/**")
                 .hasAnyRole("USER", "MODERATOR", "ADMIN")
 

@@ -4,10 +4,12 @@ import com.example.book_exchange_sepm.dto.ExchangeRequestRequest;
 import com.example.book_exchange_sepm.dto.ExchangeRequestResponse;
 import com.example.book_exchange_sepm.dto.ExchangeStatusUpdateRequest;
 import com.example.book_exchange_sepm.entity.Book;
+import com.example.book_exchange_sepm.entity.Delivery;
 import com.example.book_exchange_sepm.entity.ExchangeRequest;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.exception.ResourceNotFoundException;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
+import com.example.book_exchange_sepm.repository.DeliveryRepository;
 import com.example.book_exchange_sepm.repository.ExchangeRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,12 @@ public class ExchangeRequestService {
 
     @Autowired
     private ChatRoomService chatRoomService;
+
+    @Autowired
+    private DeliveryService deliveryService;
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
 
     /**
      * Create exchange request (USER+ roles)
@@ -166,8 +174,8 @@ public class ExchangeRequestService {
     }
 
     /**
-     * Approve exchange request
-     * OWNERSHIP ENFORCED: Only book owner can approve requests for their book
+     * Approve exchange request and hand it over to delivery.
+     * Flow: PENDING -> APPROVED, then a delivery record is created and auto-assigned.
      */
     @Transactional
     public ExchangeRequestResponse approveExchangeRequest(Long exchangeRequestId) {
@@ -185,7 +193,7 @@ public class ExchangeRequestService {
 
         User reviewer = userService.getCurrentUserEntity();
 
-        // Final moderator approval triggers the ownership transfer atomically.
+        // Moderator approval moves the books into delivery.
         Book requestedBook = exchangeRequest.getBook();
         Book offeredBook = exchangeRequest.getOfferedBook();
         User requester = exchangeRequest.getRequester();
@@ -198,24 +206,23 @@ public class ExchangeRequestService {
             throw new UnauthorizedActionException("Offered book owner changed. Refresh and retry flow.");
         }
 
-        requestedBook.setOwner(requester);
-        offeredBook.setOwner(originalOwner);
-        requestedBook.setAvailable(true);
-        offeredBook.setAvailable(true);
+        requestedBook.setAvailable(false);
+        offeredBook.setAvailable(false);
 
         bookService.updateBook(requestedBook);
         bookService.updateBook(offeredBook);
 
-        exchangeRequest.setStatus(ExchangeRequest.Status.COMPLETED);
+        exchangeRequest.setStatus(ExchangeRequest.Status.APPROVED);
         exchangeRequest.setReviewedBy(reviewer);
         exchangeRequest.setReviewedAt(java.time.LocalDateTime.now());
-        exchangeRequest.setCompletedAt(java.time.LocalDateTime.now());
-        exchangeRequest.setModeratorComment("Approved by moderator and completed with ownership transfer");
+        exchangeRequest.setCompletedAt(null);
+        exchangeRequest.setModeratorComment("Approved by moderator and sent for delivery");
 
         cancelConflictingPendingRequests(exchangeRequest);
         chatRoomService.getChatRoomForExchange(exchangeRequestId);
 
         ExchangeRequest updatedRequest = exchangeRequestRepository.save(exchangeRequest);
+        deliveryService.autoAssignDeliveryMan(exchangeRequestId);
         return convertToResponse(updatedRequest);
     }
 
@@ -288,9 +295,7 @@ public class ExchangeRequestService {
 
     /**
      * CRITICAL: Complete an exchange and transfer ownership
-     * Only the requester/book owner can confirm completion
-     * Transfers ownership of both books and marks them available
-     * Flow: PENDING -> APPROVED -> COMPLETED (books transfer ownership)
+     * Manual completion is disabled because the transfer now happens through delivery.
      */
     @Transactional
     public ExchangeRequestResponse completeExchangeRequest(Long exchangeRequestId) {
@@ -326,6 +331,7 @@ public class ExchangeRequestService {
      * Convert ExchangeRequest entity to ExchangeRequestResponse DTO
      */
     private ExchangeRequestResponse convertToResponse(ExchangeRequest exchangeRequest) {
+        Delivery delivery = deliveryRepository.findByExchangeRequest_Id(exchangeRequest.getId()).orElse(null);
         return new ExchangeRequestResponse(
             exchangeRequest.getId(),
             exchangeRequest.getRequester().getId(),
@@ -350,7 +356,10 @@ public class ExchangeRequestService {
             exchangeRequest.getUpdatedAt(),
             exchangeRequest.getCompletedAt(),
             exchangeRequest.getRequesterAcceptedAt(),
-            exchangeRequest.getOwnerAcceptedAt()
+            exchangeRequest.getOwnerAcceptedAt(),
+            delivery != null ? delivery.getId() : null,
+            delivery != null ? delivery.getStatus().name() : null,
+            delivery != null && delivery.getDeliveryMan() != null ? delivery.getDeliveryMan().getUsername() : null
         );
     }
 

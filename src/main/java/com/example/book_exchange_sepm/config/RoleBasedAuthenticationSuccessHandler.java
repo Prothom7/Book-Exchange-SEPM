@@ -28,6 +28,11 @@ public class RoleBasedAuthenticationSuccessHandler implements AuthenticationSucc
             return;
         }
 
+        if (authorities.contains("ROLE_DELIVERY_MAN")) {
+            response.sendRedirect("/delivery");
+            return;
+        }
+
         response.sendRedirect("/landingpage");
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
@@ -161,6 +162,16 @@ public class UserService {
     }
 
     /**
+     * Check if current user is delivery man
+     */
+    @Transactional(readOnly = true)
+    public boolean isDeliveryMan() {
+        User currentUser = getCurrentUserEntity();
+        return currentUser.getRoles().stream()
+            .anyMatch(role -> role.getName().equals("ROLE_DELIVERY_MAN"));
+    }
+
+    /**
      * Check if current user has given role
      */
     @Transactional(readOnly = true)
@@ -168,6 +179,72 @@ public class UserService {
         User currentUser = getCurrentUserEntity();
         return currentUser.getRoles().stream()
             .anyMatch(role -> role.getName().equals(roleName));
+    }
+
+    /**
+     * Get all users who have the delivery man role.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<User> getDeliveryMen() {
+        return userRepository.findByRoles_Name("ROLE_DELIVERY_MAN");
+    }
+
+    /**
+     * Get delivery men who were explicitly approved through the request flow.
+     * Seeded/demo delivery accounts remain visible in the system but are not
+     * eligible for automatic assignment.
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<User> getApprovedDeliveryMenForAssignment() {
+        return userRepository.findByRoles_Name("ROLE_DELIVERY_MAN").stream()
+            .filter(user -> resolveDeliveryRequestStatus(user) == User.DeliveryRequestStatus.APPROVED)
+            .toList();
+    }
+
+    /**
+     * Request delivery man approval for the current user.
+     */
+    @Transactional
+    public UserResponse requestDeliveryManRole() {
+        User currentUser = getCurrentUserEntity();
+
+        boolean alreadyDeliveryMan = currentUser.getRoles().stream()
+            .anyMatch(role -> role.getName().equals("ROLE_DELIVERY_MAN"));
+        if (alreadyDeliveryMan) {
+            throw new UnauthorizedActionException("You are already approved as a delivery man");
+        }
+
+        if (resolveDeliveryRequestStatus(currentUser) == User.DeliveryRequestStatus.PENDING) {
+            throw new UnauthorizedActionException("Your delivery man request is already pending approval");
+        }
+
+        currentUser.setDeliveryRequestStatus(User.DeliveryRequestStatus.PENDING);
+        currentUser.setDeliveryRequestRequestedAt(LocalDateTime.now());
+        currentUser.setDeliveryRequestApprovedAt(null);
+
+        return convertToUserResponse(userRepository.save(currentUser));
+    }
+
+    /**
+     * Approve a pending delivery man request.
+     */
+    @Transactional
+    public UserResponse approveDeliveryManRole(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+        if (resolveDeliveryRequestStatus(user) != User.DeliveryRequestStatus.PENDING) {
+            throw new UnauthorizedActionException("User does not have a pending delivery request");
+        }
+
+        Role deliveryRole = roleRepository.findByName("ROLE_DELIVERY_MAN")
+            .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_DELIVERY_MAN")));
+
+        user.getRoles().add(deliveryRole);
+        user.setDeliveryRequestStatus(User.DeliveryRequestStatus.APPROVED);
+        user.setDeliveryRequestApprovedAt(LocalDateTime.now());
+
+        return convertToUserResponse(userRepository.save(user));
     }
 
     /**
@@ -220,8 +297,17 @@ public class UserService {
                 .collect(Collectors.toSet()),
             user.getCreatedAt(),
             user.getUpdatedAt(),
-            user.getProfileImageDataUrl()
+            user.getProfileImageDataUrl(),
+            resolveDeliveryRequestStatus(user).name(),
+            user.getDeliveryRequestRequestedAt(),
+            user.getDeliveryRequestApprovedAt()
         );
+    }
+
+    private User.DeliveryRequestStatus resolveDeliveryRequestStatus(User user) {
+        return user.getDeliveryRequestStatus() != null
+            ? user.getDeliveryRequestStatus()
+            : User.DeliveryRequestStatus.NONE;
     }
 
     /**

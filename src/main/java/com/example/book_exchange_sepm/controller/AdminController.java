@@ -79,6 +79,7 @@ public class AdminController {
         model.addAttribute("totalUsers", users.size());
         model.addAttribute("verifiedUsers", users.stream().filter(u -> Boolean.TRUE.equals(u.get("isEmailVerified"))).count());
         model.addAttribute("moderatorCount", users.stream().filter(u -> "MODERATOR".equals(String.valueOf(u.get("role")))).count());
+        model.addAttribute("pendingDeliveryRequests", users.stream().filter(u -> "PENDING".equals(String.valueOf(u.get("deliveryRequestStatus")))).count());
         model.addAttribute("pageTitle", "User Management");
         model.addAttribute("adminNavItems", ADMIN_NAV_ITEMS);
         model.addAttribute("activePath", "/admin/users");
@@ -216,6 +217,13 @@ public class AdminController {
             @RequestParam(value = "bookQuota", required = false) Integer bookQuota) {
         UserResponse promoted = userService.promoteToModerator(id, bookQuota != null ? bookQuota : 5);
         return new ResponseEntity<>(promoted, HttpStatus.OK);
+    }
+
+    @PostMapping("/api/users/{id}/approve-delivery")
+    @ResponseBody
+    public ResponseEntity<UserResponse> approveUserAsDeliveryMan(@PathVariable Long id) {
+        UserResponse approved = userService.approveDeliveryManRole(id);
+        return new ResponseEntity<>(approved, HttpStatus.OK);
     }
 
     private void populateAdminModel(Model model,
