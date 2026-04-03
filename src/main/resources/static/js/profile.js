@@ -9,6 +9,9 @@ const profileRolesEl = document.getElementById("profileRoles");
 const profileMetaEl = document.getElementById("profileMeta");
 const profileStatusEl = document.getElementById("profileStatus");
 const logoutBtnEl = document.getElementById("logoutBtn");
+const requestDeliveryBtnEl = document.getElementById("requestDeliveryBtn");
+const deliveryProfileSectionEl = document.getElementById("deliveryProfileSection");
+const deliveryProfileTextEl = document.getElementById("deliveryProfileText");
 
 let activeToken = getStoredToken();
 let pendingImageDataUrl = null;
@@ -78,6 +81,51 @@ function renderRoles(roles = []) {
   });
 }
 
+function updateDeliveryRequestButton(profile) {
+  if (!requestDeliveryBtnEl) {
+    return;
+  }
+
+  const roles = Array.isArray(profile.roles) ? profile.roles : [];
+  const isDeliveryMan = roles.includes("ROLE_DELIVERY_MAN");
+  const requestStatus = profile.deliveryRequestStatus || "NONE";
+
+  if (isDeliveryMan || requestStatus === "APPROVED") {
+    requestDeliveryBtnEl.textContent = "Approved as Delivery Man";
+    requestDeliveryBtnEl.disabled = true;
+    return;
+  }
+
+  if (requestStatus === "PENDING") {
+    requestDeliveryBtnEl.textContent = "Delivery Request Pending";
+    requestDeliveryBtnEl.disabled = true;
+    return;
+  }
+
+  requestDeliveryBtnEl.textContent = "Request Delivery Role";
+  requestDeliveryBtnEl.disabled = false;
+}
+
+function updateDeliverySection(profile) {
+  if (!deliveryProfileSectionEl) {
+    return;
+  }
+
+  const roles = Array.isArray(profile.roles) ? profile.roles : [];
+  const isDeliveryMan = roles.includes("ROLE_DELIVERY_MAN");
+  const requestStatus = profile.deliveryRequestStatus || "NONE";
+
+  if (isDeliveryMan || requestStatus === "APPROVED") {
+    deliveryProfileSectionEl.classList.remove("hidden-section");
+    if (deliveryProfileTextEl) {
+      deliveryProfileTextEl.textContent = "You are approved as a delivery man. Open the delivery section to see assigned deliveries and update their status.";
+    }
+    return;
+  }
+
+  deliveryProfileSectionEl.classList.add("hidden-section");
+}
+
 function formatDate(dateValue) {
   if (!dateValue) {
     return "-";
@@ -121,6 +169,8 @@ async function loadProfile() {
 
     profileImageEl.src = profile.profileImageDataUrl || fallbackAvatar(profile.username);
     profileImageEl.alt = `${profile.username || "Reader"} profile image`;
+    updateDeliveryRequestButton(profile);
+    updateDeliverySection(profile);
     setStatus("Profile loaded.", "success");
   } catch (error) {
     setStatus("Profile request failed. Please try again.", "error");
@@ -216,5 +266,36 @@ logoutBtnEl.addEventListener("click", async () => {
 
   window.location.href = "/login?logout=true";
 });
+
+if (requestDeliveryBtnEl) {
+  requestDeliveryBtnEl.addEventListener("click", async () => {
+    setStatus("Submitting delivery role request...");
+
+    try {
+      const response = await fetch("/api/user/request-delivery", {
+        method: "PUT",
+        headers: withAuthHeaders(),
+        credentials: "include"
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          setStatus("Your session/token is not valid. Please login again.", "error");
+        } else {
+          const errorText = await response.text();
+          setStatus(errorText || "Could not submit delivery request.", "error");
+        }
+        return;
+      }
+
+      const updatedProfile = await response.json();
+      updateDeliveryRequestButton(updatedProfile);
+      updateDeliverySection(updatedProfile);
+      setStatus("Delivery role request submitted for admin approval.", "success");
+    } catch (error) {
+      setStatus("Delivery role request failed. Please try again.", "error");
+    }
+  });
+}
 
 void loadProfile();

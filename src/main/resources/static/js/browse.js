@@ -1,5 +1,14 @@
 const browseTokenKeys = ["jwtToken", "token", "authToken"];
 const BROWSE_PAGE_SIZE = 12;
+const exchangeModal = document.getElementById("exchangeRequestModal");
+const exchangeRequestForm = document.getElementById("exchangeRequestForm");
+const exchangeRequestedBookIdInput = document.getElementById("requestedBookId");
+const exchangeOfferedBookSelect = document.getElementById("offeredBookId");
+const exchangeMessageInput = document.getElementById("exchangeMessage");
+const exchangeModalStatus = document.getElementById("exchangeModalStatus");
+const exchangeModalSubtitle = document.getElementById("exchangeModalSubtitle");
+const exchangeModalSubmit = document.getElementById("exchangeModalSubmit");
+let activeExchangeCard = null;
 
 function browseHeaders(extra = {}) {
   const browseToken = browseTokenKeys.map((key) => localStorage.getItem(key)).find((v) => !!v) || null;
@@ -34,6 +43,48 @@ function setCardStatus(card, message, isError = false) {
   }
   status.textContent = message;
   status.style.color = isError ? "#8e2b2b" : "#405171";
+}
+
+function setExchangeModalStatus(message, isError = false) {
+  if (!exchangeModalStatus) {
+    return;
+  }
+  exchangeModalStatus.textContent = message;
+  exchangeModalStatus.style.color = isError ? "#a12626" : "#405171";
+}
+
+function closeExchangeModal() {
+  if (!exchangeModal) {
+    return;
+  }
+  exchangeModal.classList.add("hidden");
+  exchangeModal.setAttribute("aria-hidden", "true");
+  exchangeRequestForm?.reset();
+  exchangeOfferedBookSelect.innerHTML = '<option value="">Select one of your books</option>';
+  setExchangeModalStatus("");
+  activeExchangeCard = null;
+}
+
+function openExchangeModal(requestedBookId, requestedBookTitle, myBooks, card) {
+  if (!exchangeModal || !exchangeRequestedBookIdInput || !exchangeOfferedBookSelect) {
+    return;
+  }
+
+  exchangeRequestedBookIdInput.value = String(requestedBookId);
+  exchangeModalSubtitle.textContent = `Request "${requestedBookTitle}" by offering one of your available books.`;
+  exchangeOfferedBookSelect.innerHTML = '<option value="">Select one of your books</option>';
+  myBooks.forEach((book) => {
+    const option = document.createElement("option");
+    option.value = String(book.id);
+    option.textContent = `${book.id}: ${book.title}`;
+    exchangeOfferedBookSelect.appendChild(option);
+  });
+
+  setExchangeModalStatus("");
+  activeExchangeCard = card;
+  exchangeModal.classList.remove("hidden");
+  exchangeModal.setAttribute("aria-hidden", "false");
+  exchangeOfferedBookSelect.focus();
 }
 
 document.addEventListener("click", async (event) => {
@@ -84,43 +135,64 @@ document.addEventListener("click", async (event) => {
         setCardStatus(card, "Add and mark at least one of your books as available first.", true);
         return;
       }
-
-      const optionsText = myBooks.map((book) => `${book.id}: ${book.title}`).join("\n");
-      const selected = window.prompt(`Offer one of your books by ID:\n${optionsText}`);
-      if (!selected) {
-        return;
-      }
-
-      const offeredBookId = Number(selected);
-      if (Number.isNaN(offeredBookId)) {
-        setCardStatus(card, "Invalid offered book ID.", true);
-        return;
-      }
-
-      const message = window.prompt(`Optional note for requesting '${requestedBookTitle}':`) || "";
-
-      const response = await fetch("/api/exchange-requests", {
-        method: "POST",
-        credentials: "include",
-        headers: browseHeaders({
-          "Content-Type": "application/json"
-        }),
-        body: JSON.stringify({
-          bookId: Number(requestedBookId),
-          offeredBookId,
-          message
-        })
-      });
-
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null);
-        throw new Error(payload?.message || "Request failed");
-      }
-
-      setCardStatus(card, "Exchange request submitted for moderator review.");
+      openExchangeModal(requestedBookId, requestedBookTitle, myBooks, card);
     } catch (error) {
       setCardStatus(card, error?.message || "Could not submit exchange request.", true);
     }
+  }
+});
+
+exchangeRequestForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const requestedBookId = Number(exchangeRequestedBookIdInput?.value);
+  const offeredBookId = Number(exchangeOfferedBookSelect?.value);
+  const message = exchangeMessageInput?.value?.trim() || "";
+
+  if (!requestedBookId || Number.isNaN(offeredBookId)) {
+    setExchangeModalStatus("Choose one of your books before sending the request.", true);
+    return;
+  }
+
+  try {
+    exchangeModalSubmit.disabled = true;
+    setExchangeModalStatus("Sending exchange request...");
+
+    const response = await fetch("/api/exchange-requests", {
+      method: "POST",
+      credentials: "include",
+      headers: browseHeaders({
+        "Content-Type": "application/json"
+      }),
+      body: JSON.stringify({
+        bookId: requestedBookId,
+        offeredBookId,
+        message
+      })
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.message || "Request failed");
+    }
+
+    if (activeExchangeCard) {
+      setCardStatus(activeExchangeCard, "Exchange request submitted for moderator review.");
+    }
+    closeExchangeModal();
+  } catch (error) {
+    setExchangeModalStatus(error?.message || "Could not submit exchange request.", true);
+  } finally {
+    exchangeModalSubmit.disabled = false;
+  }
+});
+
+document.getElementById("exchangeModalCancel")?.addEventListener("click", closeExchangeModal);
+document.getElementById("exchangeModalClose")?.addEventListener("click", closeExchangeModal);
+exchangeModal?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (target instanceof HTMLElement && target.dataset.closeModal === "true") {
+    closeExchangeModal();
   }
 });
 

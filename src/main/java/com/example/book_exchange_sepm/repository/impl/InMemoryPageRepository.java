@@ -99,6 +99,15 @@ public class InMemoryPageRepository implements PageRepository {
                 )
         );
         pageContents.put(
+                "delivery",
+                new PageContent(
+                        "Book Exchange | Delivery",
+                        "Assigned Deliveries",
+                        "Track assigned deliveries and keep exchange handoffs moving.",
+                        "/delivery"
+                )
+        );
+        pageContents.put(
                 "wishlist",
                 new PageContent(
                         "Book Exchange | Wishlist",

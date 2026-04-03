@@ -45,6 +45,16 @@ public class User {
     @Column
     private LocalDateTime verificationTokenExpiry;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private DeliveryRequestStatus deliveryRequestStatus = DeliveryRequestStatus.NONE;
+
+    @Column
+    private LocalDateTime deliveryRequestRequestedAt;
+
+    @Column
+    private LocalDateTime deliveryRequestApprovedAt;
+
     @Lob
     @Column(columnDefinition = "TEXT")
     private String profileImageDataUrl;
@@ -64,5 +74,11 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public enum DeliveryRequestStatus {
+        NONE,
+        PENDING,
+        APPROVED
     }
 }

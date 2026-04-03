@@ -67,6 +67,12 @@ public class PageController {
         return "exchange";
     }
 
+    @GetMapping("/delivery")
+    public String deliveryPage(Model model) {
+        populateModel(model, "delivery");
+        return "delivery";
+    }
+
     @GetMapping("/wishlist")
     public String wishlistPage(Model model) {
         populateModel(model, "wishlist");

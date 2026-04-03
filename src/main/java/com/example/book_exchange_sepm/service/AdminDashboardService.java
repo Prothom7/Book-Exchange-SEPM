@@ -75,9 +75,9 @@ public class AdminDashboardService {
                     String role = user.getRoles().stream()
                         .map(Role::getName)
                         .sorted((a, b) -> {
-                            // Sort by role priority: ADMIN > MODERATOR > USER
-                            int priorityA = a.contains("ADMIN") ? 0 : a.contains("MODERATOR") ? 1 : 2;
-                            int priorityB = b.contains("ADMIN") ? 0 : b.contains("MODERATOR") ? 1 : 2;
+                            // Sort by role priority: ADMIN > MODERATOR > DELIVERY_MAN > USER
+                            int priorityA = a.contains("ADMIN") ? 0 : a.contains("MODERATOR") ? 1 : a.contains("DELIVERY_MAN") ? 2 : 3;
+                            int priorityB = b.contains("ADMIN") ? 0 : b.contains("MODERATOR") ? 1 : b.contains("DELIVERY_MAN") ? 2 : 3;
                             return Integer.compare(priorityA, priorityB);
                         })
                         .findFirst()
@@ -89,6 +89,8 @@ public class AdminDashboardService {
                     userInfo.put("exchangeCount", exchangeRequestRepository.findByRequester_IdOrderByCreatedAtDesc(user.getId()).size());
                     userInfo.put("joinDate", user.getCreatedAt());
                     userInfo.put("lastLogin", user.getUpdatedAt());
+                    userInfo.put("deliveryRequestStatus", user.getDeliveryRequestStatus() != null ? user.getDeliveryRequestStatus().name() : "NONE");
+                    userInfo.put("deliveryRequestRequestedAt", user.getDeliveryRequestRequestedAt());
                     return userInfo;
                 })
                 .collect(Collectors.toList());

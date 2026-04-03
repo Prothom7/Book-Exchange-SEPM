@@ -4,12 +4,14 @@ import com.example.book_exchange_sepm.dto.ExchangeRequestRequest;
 import com.example.book_exchange_sepm.dto.ExchangeRequestResponse;
 import com.example.book_exchange_sepm.entity.Book;
 import com.example.book_exchange_sepm.entity.ChatRoom;
+import com.example.book_exchange_sepm.entity.Delivery;
 import com.example.book_exchange_sepm.entity.ExchangeRequest;
 import com.example.book_exchange_sepm.entity.Role;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.repository.BookRepository;
 import com.example.book_exchange_sepm.repository.ChatMessageRepository;
 import com.example.book_exchange_sepm.repository.ChatRoomRepository;
+import com.example.book_exchange_sepm.repository.DeliveryRepository;
 import com.example.book_exchange_sepm.repository.ExchangeRequestRepository;
 import com.example.book_exchange_sepm.repository.RoleRepository;
 import com.example.book_exchange_sepm.repository.UserNotificationRepository;
@@ -44,6 +46,12 @@ class ExchangeRequestServiceIntegrationTest {
     private ExchangeRequestRepository exchangeRequestRepository;
 
     @Autowired
+    private DeliveryService deliveryService;
+
+    @Autowired
+    private DeliveryRepository deliveryRepository;
+
+    @Autowired
     private ChatRoomRepository chatRoomRepository;
 
     @Autowired
@@ -69,6 +77,7 @@ class ExchangeRequestServiceIntegrationTest {
         SecurityContextHolder.clearContext();
         chatMessageRepository.deleteAll();
         chatRoomRepository.deleteAll();
+        deliveryRepository.deleteAll();
         exchangeRequestRepository.deleteAll();
         userNotificationRepository.deleteAll();
         wishlistSubscriptionRepository.deleteAll();
@@ -115,13 +124,15 @@ class ExchangeRequestServiceIntegrationTest {
     }
 
     @Test
-    void approveExchangeRequest_ShouldCompleteExchange_AndTransferOwnership() {
+    void approveExchangeRequest_ShouldAssignDelivery_AndDeliveredStatusShouldCompleteExchange() {
         Role userRole = ensureRole("ROLE_USER");
         Role moderatorRole = ensureRole("ROLE_MODERATOR");
+        Role deliveryRole = ensureRole("ROLE_DELIVERY_MAN");
 
         User owner = saveUser("owner_flow", "owner.flow@example.com", userRole);
         User requester = saveUser("requester_flow", "requester.flow@example.com", userRole);
         User moderator = saveUser("moderator_flow", "moderator.flow@example.com", moderatorRole);
+        User deliveryMan = saveUser("delivery_flow", "delivery.flow@example.com", deliveryRole);
 
         Book requestedBook = saveBook("Moderator Requested Book", "REQ-ISBN-002", owner, true);
         Book offeredBook = saveBook("Moderator Offered Book", "OFF-ISBN-002", requester, true);
@@ -138,8 +149,19 @@ class ExchangeRequestServiceIntegrationTest {
         authenticateAs(moderator);
         ExchangeRequestResponse approved = exchangeRequestService.approveExchangeRequest(created.getId());
 
-        assertEquals("COMPLETED", approved.getStatus());
-        assertNotNull(approved.getCompletedAt());
+        assertEquals("APPROVED", approved.getStatus());
+        assertEquals("ASSIGNED", approved.getDeliveryStatus());
+        assertEquals(deliveryMan.getUsername(), approved.getDeliveryManUsername());
+
+        Book afterApprovalRequested = bookRepository.findById(requestedBook.getId()).orElseThrow();
+        Book afterApprovalOffered = bookRepository.findById(offeredBook.getId()).orElseThrow();
+        assertTrue(Boolean.FALSE.equals(afterApprovalRequested.getAvailable()));
+        assertTrue(Boolean.FALSE.equals(afterApprovalOffered.getAvailable()));
+
+        Delivery delivery = deliveryRepository.findByExchangeRequest_Id(created.getId()).orElseThrow();
+
+        authenticateAs(deliveryMan);
+        deliveryService.updateDeliveryStatus(delivery.getId(), Delivery.Status.DELIVERED);
 
         Book reloadedRequested = bookRepository.findById(requestedBook.getId()).orElseThrow();
         Book reloadedOffered = bookRepository.findById(offeredBook.getId()).orElseThrow();
@@ -152,6 +174,7 @@ class ExchangeRequestServiceIntegrationTest {
         ExchangeRequest persisted = exchangeRequestRepository.findById(created.getId()).orElseThrow();
         assertEquals(ExchangeRequest.Status.COMPLETED, persisted.getStatus());
         assertEquals(moderator.getId(), persisted.getReviewedBy().getId());
+        assertNotNull(persisted.getCompletedAt());
     }
 
     private Role ensureRole(String roleName) {

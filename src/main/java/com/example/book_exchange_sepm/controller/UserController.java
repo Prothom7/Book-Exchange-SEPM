@@ -25,7 +25,7 @@ public class UserController {
      * Get current user profile
      */
     @GetMapping("/profile")
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN', 'DELIVERY_MAN')")
     public ResponseEntity<UserResponse> getCurrentUserProfile() {
         UserResponse user = userService.getCurrentUser();
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -35,9 +35,19 @@ public class UserController {
      * Update current user profile image
      */
     @PutMapping("/profile-image")
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN', 'DELIVERY_MAN')")
     public ResponseEntity<UserResponse> updateProfileImage(@Valid @RequestBody ProfileImageUpdateRequest request) {
         UserResponse user = userService.updateCurrentUserProfileImage(request.getImageDataUrl());
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    /**
+     * Request delivery man approval.
+     */
+    @PutMapping("/request-delivery")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    public ResponseEntity<UserResponse> requestDeliveryRole() {
+        UserResponse user = userService.requestDeliveryManRole();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -45,7 +55,7 @@ public class UserController {
      * User dashboard
      */
     @GetMapping("/dashboard")
-    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN', 'DELIVERY_MAN')")
     public ResponseEntity<String> userDashboard() {
         return new ResponseEntity<>("Welcome to User Dashboard", HttpStatus.OK);
     }
