@@ -24,6 +24,9 @@ function requestCardTemplate(item, actions = "") {
   const fallbackCover = "https://placehold.co/260x380/eef2ff/334155?text=Book+Cover";
   const requestedCover = item.bookImageUrl || fallbackCover;
   const offeredCover = item.offeredBookImageUrl || fallbackCover;
+  const deliveryInfo = item.deliveryStatus
+    ? `<p>Delivery: ${statusChip(item.deliveryStatus)}${item.deliveryManUsername ? ` <small>(assigned to ${item.deliveryManUsername})</small>` : ""}</p>`
+    : "";
 
   return `
     <article class="request-card" data-id="${item.id}">
@@ -34,6 +37,7 @@ function requestCardTemplate(item, actions = "") {
       <h4>${item.bookTitle} <small>(offered: ${item.offeredBookTitle || "-"})</small></h4>
       <p>Requester: ${item.requesterUsername} | Owner: ${item.bookOwnerUsername}</p>
       <p>Status: ${statusChip(item.status)}</p>
+      ${deliveryInfo}
       <p>Message: ${item.message || "-"}</p>
       ${item.reviewedByUsername ? `<p>Reviewed by: ${item.reviewedByUsername}</p>` : ""}
       ${actions}

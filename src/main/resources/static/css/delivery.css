@@ -1,0 +1,89 @@
+.delivery-workspace {
+  padding: 40px 0 72px;
+}
+
+.panel {
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  padding: 24px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.delivery-list {
+  display: grid;
+  gap: 16px;
+}
+
+.delivery-card {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 18px;
+  padding: 18px;
+  background: #f8fafc;
+}
+
+.delivery-card h4 {
+  margin: 0 0 10px;
+  color: #0f172a;
+}
+
+.delivery-card p {
+  margin: 6px 0;
+  color: #334155;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.approve-btn,
+.chip-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.approve-btn {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.chip-btn {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .panel {
+    padding: 18px;
+  }
+
+  .panel-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

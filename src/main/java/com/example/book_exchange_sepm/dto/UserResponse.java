@@ -19,4 +19,7 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String profileImageDataUrl;
+    private String deliveryRequestStatus;
+    private LocalDateTime deliveryRequestRequestedAt;
+    private LocalDateTime deliveryRequestApprovedAt;
 }

@@ -33,4 +33,7 @@ public class ExchangeRequestResponse {
     private LocalDateTime completedAt;
     private LocalDateTime requesterAcceptedAt;
     private LocalDateTime ownerAcceptedAt;
+    private Long deliveryId;
+    private String deliveryStatus;
+    private String deliveryManUsername;
 }

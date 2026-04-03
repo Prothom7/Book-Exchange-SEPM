@@ -71,8 +71,7 @@ public class ExchangeRequestController {
     }
 
     /**
-     * Approve exchange request (ownership enforced)
-     * Only book owner can approve
+     * Approve exchange request and send it to delivery.
      */
     @PatchMapping("/{id}/approve")
     @PreAuthorize("hasRole('MODERATOR')")
@@ -82,8 +81,7 @@ public class ExchangeRequestController {
     }
 
     /**
-     * Reject exchange request (ownership enforced)
-     * Only book owner can reject
+     * Reject exchange request.
      */
     @PatchMapping("/{id}/reject")
     @PreAuthorize("hasRole('MODERATOR')")
@@ -115,10 +113,7 @@ public class ExchangeRequestController {
     }
 
     /**
-     * CRITICAL: Complete an exchange and transfer ownership
-     * Only requester or book owner can complete
-     * Transfers books between users
-     * Flow: PENDING -> APPROVED -> COMPLETED (ownership transfer)
+     * Manual completion remains disabled because delivery completion finalizes the exchange.
      */
     @PatchMapping("/{id}/complete")
     @PreAuthorize("hasAnyRole('USER', 'MODERATOR', 'ADMIN')")

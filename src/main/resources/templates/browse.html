@@ -146,6 +146,41 @@
     </section>
   </main>
 
+  <div class="exchange-modal hidden" id="exchangeRequestModal" aria-hidden="true">
+    <div class="exchange-modal-backdrop" data-close-modal="true"></div>
+    <div class="exchange-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="exchangeModalTitle">
+      <button type="button" class="exchange-modal-close" id="exchangeModalClose" aria-label="Close">
+        &times;
+      </button>
+      <div class="exchange-modal-header">
+        <p class="exchange-modal-eyebrow">Request Exchange</p>
+        <h3 id="exchangeModalTitle">Choose a book to offer</h3>
+        <p class="exchange-modal-subtitle" id="exchangeModalSubtitle">
+          Pick one of your available books and add an optional note.
+        </p>
+      </div>
+
+      <form id="exchangeRequestForm" class="exchange-modal-form">
+        <input type="hidden" id="requestedBookId">
+
+        <label for="offeredBookId">Your available books</label>
+        <select id="offeredBookId" required>
+          <option value="">Select one of your books</option>
+        </select>
+
+        <label for="exchangeMessage">Message</label>
+        <textarea id="exchangeMessage" rows="4" placeholder="Add an optional note for the owner"></textarea>
+
+        <p class="exchange-modal-status" id="exchangeModalStatus" aria-live="polite"></p>
+
+        <div class="exchange-modal-actions">
+          <button type="button" class="exchange-secondary-btn" id="exchangeModalCancel">Cancel</button>
+          <button type="submit" class="exchange-primary-btn" id="exchangeModalSubmit">Send Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <th:block th:replace="~{fragments/footer :: siteFooter}"></th:block>
   <script th:src="@{/js/browse.js}" defer></script>
 </body>

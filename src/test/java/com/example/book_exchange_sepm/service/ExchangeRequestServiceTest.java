@@ -4,9 +4,11 @@ import com.example.book_exchange_sepm.dto.ExchangeRequestRequest;
 import com.example.book_exchange_sepm.dto.ExchangeRequestResponse;
 import com.example.book_exchange_sepm.dto.ExchangeStatusUpdateRequest;
 import com.example.book_exchange_sepm.entity.Book;
+import com.example.book_exchange_sepm.entity.Delivery;
 import com.example.book_exchange_sepm.entity.ExchangeRequest;
 import com.example.book_exchange_sepm.entity.User;
 import com.example.book_exchange_sepm.exception.UnauthorizedActionException;
+import com.example.book_exchange_sepm.repository.DeliveryRepository;
 import com.example.book_exchange_sepm.repository.ExchangeRequestRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +40,12 @@ class ExchangeRequestServiceTest {
 
     @Mock
     private ChatRoomService chatRoomService;
+
+    @Mock
+    private DeliveryService deliveryService;
+
+    @Mock
+    private DeliveryRepository deliveryRepository;
 
     @InjectMocks
     private ExchangeRequestService exchangeRequestService;
@@ -57,6 +66,7 @@ class ExchangeRequestServiceTest {
         when(userService.getCurrentUserEntity()).thenReturn(requester);
         when(bookService.findBookById(10L)).thenReturn(requested);
         when(bookService.findBookById(20L)).thenReturn(offered);
+        when(deliveryRepository.findByExchangeRequest_Id(anyLong())).thenReturn(Optional.empty());
         when(exchangeRequestRepository.save(any(ExchangeRequest.class))).thenAnswer(invocation -> {
             ExchangeRequest saved = invocation.getArgument(0);
             saved.setId(500L);
@@ -108,7 +118,7 @@ class ExchangeRequestServiceTest {
     }
 
     @Test
-    void approveExchangeRequest_ShouldCompleteAndTransferOwnership_WhenModeratorApprovesAfterBothAccept() {
+    void approveExchangeRequest_ShouldApproveAndAssignDelivery_WhenModeratorApprovesAfterBothAccept() {
         User requester = user(1L, "requester");
         User owner = user(2L, "owner");
         User moderator = user(3L, "mod");
@@ -123,14 +133,19 @@ class ExchangeRequestServiceTest {
         when(exchangeRequestRepository.findConflictingPendingRequests(101L, 111L, 121L)).thenReturn(java.util.List.of());
         when(bookService.updateBook(any(Book.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(exchangeRequestRepository.save(exchange)).thenReturn(exchange);
+        when(deliveryRepository.findByExchangeRequest_Id(101L)).thenReturn(Optional.of(
+            new Delivery(1L, exchange, user(4L, "deliveryman"), Delivery.Status.ASSIGNED, java.time.LocalDateTime.now(), null, null, java.time.LocalDateTime.now(), java.time.LocalDateTime.now())
+        ));
 
         ExchangeRequestResponse response = exchangeRequestService.approveExchangeRequest(101L);
 
-        assertEquals("COMPLETED", response.getStatus());
-        assertTrue(Boolean.TRUE.equals(exchange.getBook().getAvailable()));
-        assertTrue(Boolean.TRUE.equals(exchange.getOfferedBook().getAvailable()));
-        assertEquals(requester.getId(), exchange.getBook().getOwner().getId());
-        assertEquals(owner.getId(), exchange.getOfferedBook().getOwner().getId());
+        assertEquals("APPROVED", response.getStatus());
+        assertEquals("ASSIGNED", response.getDeliveryStatus());
+        assertTrue(Boolean.FALSE.equals(exchange.getBook().getAvailable()));
+        assertTrue(Boolean.FALSE.equals(exchange.getOfferedBook().getAvailable()));
+        assertEquals(owner.getId(), exchange.getBook().getOwner().getId());
+        assertEquals(requester.getId(), exchange.getOfferedBook().getOwner().getId());
+        verify(deliveryService).autoAssignDeliveryMan(101L);
     }
 
     @Test
