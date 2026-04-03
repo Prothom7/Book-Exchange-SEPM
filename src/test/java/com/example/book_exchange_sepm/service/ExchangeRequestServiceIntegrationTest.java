@@ -133,6 +133,8 @@ class ExchangeRequestServiceIntegrationTest {
         User requester = saveUser("requester_flow", "requester.flow@example.com", userRole);
         User moderator = saveUser("moderator_flow", "moderator.flow@example.com", moderatorRole);
         User deliveryMan = saveUser("delivery_flow", "delivery.flow@example.com", deliveryRole);
+        deliveryMan.setDeliveryRequestStatus(User.DeliveryRequestStatus.APPROVED);
+        userRepository.save(deliveryMan);
 
         Book requestedBook = saveBook("Moderator Requested Book", "REQ-ISBN-002", owner, true);
         Book offeredBook = saveBook("Moderator Offered Book", "OFF-ISBN-002", requester, true);
