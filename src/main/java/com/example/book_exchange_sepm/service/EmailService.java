@@ -126,13 +126,23 @@ public class EmailService {
     }
 
     private String buildPasswordResetEmailBody(String username, String token, String effectiveBaseUrl) {
+        String resetLink = effectiveBaseUrl + "/reset-password?token=" + token;
+        String lanBaseUrl = resolveLanBaseUrl(effectiveBaseUrl);
+
+        String alternateLinkText = "";
+        if (lanBaseUrl != null) {
+            alternateLinkText = "\nIf you open this email on your phone, use this link instead:\n"
+                + lanBaseUrl + "/reset-password?token=" + token + "\n";
+        }
+
         return String.format("""
             Hello %s,
             
             We received a request to reset your password.
             
             Click the link below to reset your password:
-            %s/reset-password?token=%s
+            %s
+            %s
             
             This link will expire in 1 hour.
             
@@ -140,6 +150,6 @@ public class EmailService {
             
             Best regards,
             Book Exchange Team
-            """, username, effectiveBaseUrl, token);
+            """, username, resetLink, alternateLinkText);
     }
 }

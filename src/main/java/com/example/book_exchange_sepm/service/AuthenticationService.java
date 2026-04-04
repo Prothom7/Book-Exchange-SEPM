@@ -214,4 +214,48 @@ public class AuthenticationService {
 
         emailService.sendVerificationEmail(user.getEmail(), user.getUsername(), verificationToken);
     }
+
+    @Transactional
+    public void requestPasswordReset(String usernameOrEmail) {
+        if (usernameOrEmail == null || usernameOrEmail.isBlank()) {
+            return;
+        }
+
+        userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail).ifPresent(user -> {
+            String resetToken = UUID.randomUUID().toString();
+            user.setPasswordResetToken(resetToken);
+            user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(1));
+            userRepository.save(user);
+            emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), resetToken);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword, String confirmPassword) {
+        if (token == null || token.isBlank()) {
+            throw new ResourceNotFoundException("Password reset token is missing");
+        }
+
+        if (newPassword == null || confirmPassword == null || !newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        PasswordStrengthValidator.ValidationResult passwordValidation =
+            passwordStrengthValidator.validate(newPassword);
+        if (!passwordValidation.isValid()) {
+            throw new IllegalArgumentException("Password is too weak: " + passwordValidation.getMessage());
+        }
+
+        User user = userRepository.findByPasswordResetToken(token)
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid password reset token"));
+
+        if (user.getPasswordResetTokenExpiry() == null || user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            throw new UnauthorizedActionException("Password reset token has expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpiry(null);
+        userRepository.save(user);
+    }
 }

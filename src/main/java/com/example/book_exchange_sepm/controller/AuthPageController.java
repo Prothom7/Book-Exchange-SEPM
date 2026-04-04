@@ -37,6 +37,8 @@ public class AuthPageController {
                         @RequestParam(value = "registered", required = false) String registered,
                         @RequestParam(value = "resent", required = false) String resent,
                         @RequestParam(value = "resendError", required = false) String resendError,
+                        @RequestParam(value = "resetRequested", required = false) String resetRequested,
+                        @RequestParam(value = "resetSuccess", required = false) String resetSuccess,
                         Model model) {
         if (error != null) {
             model.addAttribute("errorMessage", "Invalid username or password.");
@@ -52,6 +54,12 @@ public class AuthPageController {
         }
         if (resendError != null) {
             model.addAttribute("errorMessage", resendError);
+        }
+        if (resetRequested != null) {
+            model.addAttribute("successMessage", "If the account exists, a password reset link has been sent.");
+        }
+        if (resetSuccess != null) {
+            model.addAttribute("successMessage", "Password reset successful. Please login with your new password.");
         }
         return "login";
     }
@@ -118,6 +126,45 @@ public class AuthPageController {
         } catch (ResourceNotFoundException | UnauthorizedActionException ex) {
             String encodedMessage = URLEncoder.encode(ex.getMessage(), StandardCharsets.UTF_8);
             return "redirect:/login?resendError=" + encodedMessage;
+        }
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword(@RequestParam(value = "error", required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("errorMessage", error);
+        }
+        return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String requestPasswordReset(@RequestParam("usernameOrEmail") String usernameOrEmail) {
+        authenticationService.requestPasswordReset(usernameOrEmail);
+        return "redirect:/login?resetRequested=true";
+    }
+
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(@RequestParam(value = "token", required = false) String token,
+                                    @RequestParam(value = "error", required = false) String error,
+                                    Model model) {
+        model.addAttribute("token", token);
+        if (error != null) {
+            model.addAttribute("errorMessage", error);
+        }
+        return "reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam("token") String token,
+                                @RequestParam("password") String password,
+                                @RequestParam("confirmPassword") String confirmPassword) {
+        try {
+            authenticationService.resetPassword(token, password, confirmPassword);
+            return "redirect:/login?resetSuccess=true";
+        } catch (ResourceNotFoundException | UnauthorizedActionException | IllegalArgumentException ex) {
+            String encodedMessage = URLEncoder.encode(ex.getMessage(), StandardCharsets.UTF_8);
+            return "redirect:/reset-password?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8)
+                + "&error=" + encodedMessage;
         }
     }
 }

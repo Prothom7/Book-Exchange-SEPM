@@ -6,10 +6,24 @@ spring:
     username: ${DB_USER:${SPRING_DATASOURCE_USERNAME}}
     password: ${DB_PASS:${SPRING_DATASOURCE_PASSWORD}}
     driver-class-name: org.postgresql.Driver
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8080}
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}

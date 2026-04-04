@@ -260,6 +260,11 @@ input::placeholder {
     font-size: 0.9rem;
 }
 
+.helper-link-tight {
+    margin-top: 12px;
+    margin-bottom: 0;
+}
+
 .helper-link a {
     color: #4a5fa3;
     text-decoration: none;

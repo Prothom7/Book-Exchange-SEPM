@@ -45,6 +45,12 @@ public class User {
     @Column
     private LocalDateTime verificationTokenExpiry;
 
+    @Column
+    private String passwordResetToken;
+
+    @Column
+    private LocalDateTime passwordResetTokenExpiry;
+
     @Enumerated(EnumType.STRING)
     @Column
     private DeliveryRequestStatus deliveryRequestStatus = DeliveryRequestStatus.NONE;

@@ -127,6 +127,10 @@
         </div>
     </form>
 
+    <p class="helper-link helper-link-tight">
+        <a th:href="@{/forgot-password}">Forgot your password?</a>
+    </p>
+
     <form th:action="@{/resend-verification}" method="post" class="secondary-action">
         <input name="usernameOrEmail" type="text" required placeholder="Username or email for verification resend">
         <button class="btn-secondary" type="submit">Resend Verification Email</button>

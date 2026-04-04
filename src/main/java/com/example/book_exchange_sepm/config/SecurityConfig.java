@@ -60,7 +60,7 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/access-denied", "/error", "/landingpage").permitAll()
+                .requestMatchers("/", "/login", "/register", "/verify-email", "/resend-verification", "/forgot-password", "/reset-password", "/access-denied", "/error", "/landingpage").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/ws-chat/**").permitAll()
