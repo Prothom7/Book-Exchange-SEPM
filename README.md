@@ -28,8 +28,9 @@ Book Exchange SEPM lets users list books, request exchanges, and complete owners
 1. User lists owned books.
 2. Another user requests an exchange by offering one of their own books.
 3. Moderator reviews and approves/rejects requests.
-4. Participants accept and complete exchange.
-5. Chat and notifications support coordination.
+4. Delivery role supports handoff/logistics coordination.
+5. Participants accept and complete exchange.
+6. Chat and notifications support coordination.
 
 ## Why This Project
 
@@ -38,9 +39,10 @@ This project was built to practice end-to-end software engineering with a realis
 ### Core Features
 
 - Registration/login (form and API)
-- Role-based access (USER, MODERATOR, ADMIN)
+- Role-based access (USER, DELIVERY, MODERATOR, ADMIN)
 - Book management (CRUD + availability)
 - Exchange workflow lifecycle management
+- Delivery coordination support in the exchange lifecycle
 - WebSocket + REST fallback chat for exchange rooms
 - Wishlist subscriptions and notification feed
 - Admin dashboard and management APIs
@@ -295,10 +297,27 @@ Trigger conditions:
 - Public routes: login/register/verify-email/static assets and websocket handshake endpoints
 - API authorization enforced by URL rules and method-level `@PreAuthorize`
 - Session support for form login plus JWT filter and HTTP Basic support for API/testing use cases
+- Roles currently used in the system:
+	- USER: core marketplace actions (books, requests, chat, wishlist, notifications)
+	- DELIVERY: delivery/handoff coordination responsibilities
+	- MODERATOR: request moderation and moderation-specific operations
+	- ADMIN: admin pages, admin APIs, and platform operations
 - Role gates:
-  - USER/MODERATOR/ADMIN for core user APIs
-  - MODERATOR for moderation APIs
-  - ADMIN for admin APIs/pages
+	- USER/DELIVERY/MODERATOR/ADMIN for core user APIs
+	- DELIVERY for delivery coordination tasks
+	- MODERATOR for moderation APIs
+	- ADMIN for admin APIs/pages
+
+### Role Matrix
+
+| Capability | USER | DELIVERY | MODERATOR | ADMIN |
+|---|---|---|---|---|
+| Browse and manage own books | Yes | Yes | Yes | Yes |
+| Create and track exchange requests | Yes | Yes | Yes | Yes |
+| Exchange chat and notifications | Yes | Yes | Yes | Yes |
+| Delivery and handoff coordination | No | Yes | Yes | Yes |
+| Moderate pending exchange requests | No | No | Yes | Yes |
+| Access admin UI and admin APIs | No | No | No | Yes |
 
 ## Project Status
 
