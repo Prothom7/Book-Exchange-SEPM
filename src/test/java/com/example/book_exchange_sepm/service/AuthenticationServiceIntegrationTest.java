@@ -88,7 +88,7 @@ class AuthenticationServiceIntegrationTest {
     }
 
     @Test
-    void login_ShouldThrowUnauthorized_WhenEmailNotVerified() {
+    void apiLogin_ShouldThrowUnauthorized_WhenEmailNotVerified() {
         RegisterRequest registerRequest = new RegisterRequest("login_test", "login_test@example.com", "SecurePass@123");
         authenticationService.register(registerRequest);
 
@@ -99,7 +99,7 @@ class AuthenticationServiceIntegrationTest {
     }
 
     @Test
-    void login_ShouldSucceed_AfterEmailVerification() {
+    void apiLogin_ShouldSucceed_AfterEmailVerification() {
         // Register user
         RegisterRequest registerRequest = new RegisterRequest("verified_user", "verified@example.com", "VerifiedPass@123");
         authenticationService.register(registerRequest);

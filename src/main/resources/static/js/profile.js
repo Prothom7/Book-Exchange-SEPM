@@ -114,8 +114,9 @@ function updateDeliverySection(profile) {
   const roles = Array.isArray(profile.roles) ? profile.roles : [];
   const isDeliveryMan = roles.includes("ROLE_DELIVERY_MAN");
   const requestStatus = profile.deliveryRequestStatus || "NONE";
+  const isApprovedDeliveryUser = isDeliveryMan && requestStatus === "APPROVED";
 
-  if (isDeliveryMan || requestStatus === "APPROVED") {
+  if (isApprovedDeliveryUser) {
     deliveryProfileSectionEl.classList.remove("hidden-section");
     if (deliveryProfileTextEl) {
       deliveryProfileTextEl.textContent = "You are approved as a delivery man. Open the delivery section to see assigned deliveries and update their status.";

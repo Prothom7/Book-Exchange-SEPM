@@ -177,6 +177,10 @@
   box-shadow: 0 14px 36px rgba(68, 82, 128, 0.08);
 }
 
+.delivery-profile-card.hidden-section {
+  display: none;
+}
+
 .delivery-profile-copy h3 {
   margin: 0.15rem 0 0.35rem;
   color: #2d3458;
